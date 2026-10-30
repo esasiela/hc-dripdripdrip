@@ -1,0 +1,4 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-sim'
+
+// Pure Java simulation: must never depend on libGDX.

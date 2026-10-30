@@ -53,6 +53,21 @@ configure(subprojects) {
   compileJava {
     options.incremental = true
   }
+
+  // Target Java 21 bytecode without requiring a JDK 21 toolchain.
+  tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+  }
+
+  dependencies {
+    testImplementation platform("org.junit:junit-bom:5.11.4")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+  }
+
+  tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+  }
 }
 
 subprojects {
