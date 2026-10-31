@@ -1,14 +1,22 @@
 # Roadmap
 
-One milestone per Claude Code session. Each milestone ends with a working build, passing tests, and a commit. Don't start the next milestone until the acceptance criteria are met.
+One milestone per Claude Code session. Each milestone is developed on a feature branch and merged via PR. Each ends with a working build, passing tests, and a PR for review. Don't start the next milestone until the acceptance criteria are met.
 
-## M0: Scaffold
+## M0: Scaffold (done)
 Goal: project structure in place and verified.
 - `sim`, `core`, `lwjgl3` modules wired; `sim` has no libGDX dependency; `core` depends on `sim`.
 - JUnit 5 set up; one trivial sim test passes via `./gradlew test`.
 - Window opens, clears to a solid color, shows FPS.
 - `CLAUDE.md` and `docs/` in place; `.gitignore` correct; first commit.
   Acceptance: `./gradlew build` and `./gradlew test` pass; `./gradlew lwjgl3:run` opens a window.
+
+## M0.5: CI and quality gates
+Goal: automated checks on every PR.
+- GitHub Actions workflow running `./gradlew build` on PRs and pushes to `main`.
+- Spotless (google-java-format) and Checkstyle wired into `build`.
+- Local pre-commit hook refusing commits on `main`.
+- `main` branch protection requires the CI check (configured in GitHub after the first CI run).
+  Acceptance: a PR shows a passing `build` check; a mis-formatted file fails the build.
 
 ## M1: Land render
 Goal: see the land with no water.

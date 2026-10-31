@@ -1,6 +1,6 @@
 # Prompt: M1 Land render
 
-(Paste into Claude Code after M0 is committed. Start in plan mode. Consider `/clear` first so the session starts fresh.)
+(Run after M0.5 is merged. Start in plan mode. Consider `/clear` first so the session starts fresh. Follow the Git workflow in CLAUDE.md: use a `feat/m1-land-render` branch and open a PR when done.)
 
 ---
 
@@ -30,4 +30,4 @@ Add hand-written maps (under `core/assets/maps/` or wherever fits the project la
 - Camera/clamping math should be testable: put pure calculations (zoom limits, clamp) in a small class that can be unit-tested, and add a couple of tests for it. These may live in `core` tests as long as they don't need a GL context.
 - Don't add water logic, sources, drains, or terraforming.
 
-Verify and report: `./gradlew build`, `./gradlew test`, and that the game runs and each test map renders (if you can't open a window here, say so and I'll check visually). List the keys/controls you implemented. Commit when done.
+Verify and report: `./gradlew build`, `./gradlew test`, and that the game runs and each test map renders (if you can't open a window here, say so and I'll check visually). List the keys/controls you implemented. Then push the branch and open a PR per the Git workflow in CLAUDE.md.
