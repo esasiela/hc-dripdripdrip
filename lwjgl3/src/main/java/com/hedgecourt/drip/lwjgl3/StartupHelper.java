@@ -64,7 +64,9 @@ public class StartupHelper {
     String[] drivers =
         new File("/proc/driver")
             .list((dir, path) -> path.toUpperCase(Locale.ROOT).contains("NVIDIA"));
-    if (drivers == null) return false;
+    if (drivers == null) {
+      return false;
+    }
     return drivers.length > 0;
   }
 
@@ -113,7 +115,9 @@ public class StartupHelper {
    */
   public static boolean startNewJvmIfRequired(boolean inheritIO) {
     String osName = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-    if (osName.contains("mac")) return startNewJvm0(/* isMac= */ true, inheritIO);
+    if (osName.contains("mac")) {
+      return startNewJvm0(/* isMac= */ true, inheritIO);
+    }
     if (osName.contains("windows")) {
       // Here, we are trying to work around an issue with how LWJGL3 loads its extracted .dll files.
       // By default, LWJGL3 extracts to the directory specified by "java.io.tmpdir": usually, the
@@ -126,8 +130,10 @@ public class StartupHelper {
       // invalid.
       // We revert our changes immediately after loading LWJGL3 natives.
       String programData = System.getenv("ProgramData");
-      if (programData == null)
-        programData = "C:\\Temp"; // if ProgramData isn't set, try some fallback.
+      if (programData == null) {
+        // if ProgramData isn't set, try some fallback.
+        programData = "C:\\Temp";
+      }
       String prevTmpDir = System.getProperty("java.io.tmpdir", programData);
       String prevUser = System.getProperty("user.name", "libGDX_User");
       System.setProperty("java.io.tmpdir", programData + "\\libGDX-temp");
@@ -166,12 +172,18 @@ public class StartupHelper {
     long processID = getProcessID(isMac);
     if (!isMac) {
       // No need to restart non-NVIDIA Linux
-      if (!isLinuxNvidia()) return false;
+      if (!isLinuxNvidia()) {
+        return false;
+      }
       // check whether __GL_THREADED_OPTIMIZATIONS is already disabled
-      if ("0".equals(System.getenv("__GL_THREADED_OPTIMIZATIONS"))) return false;
+      if ("0".equals(System.getenv("__GL_THREADED_OPTIMIZATIONS"))) {
+        return false;
+      }
     } else {
       // There is no need for -XstartOnFirstThread on Graal native image
-      if (!System.getProperty("org.graalvm.nativeimage.imagecode", "").isEmpty()) return false;
+      if (!System.getProperty("org.graalvm.nativeimage.imagecode", "").isEmpty()) {
+        return false;
+      }
 
       // Checks if we are already on the main thread, such as from running via Construo.
       long objcMsgSend = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend");
@@ -180,9 +192,14 @@ public class StartupHelper {
           JNI.invokePPP(nsThread, ObjCRuntime.sel_getUid("currentThread"), objcMsgSend);
       boolean isMainThread =
           JNI.invokePPZ(currentThread, ObjCRuntime.sel_getUid("isMainThread"), objcMsgSend);
-      if (isMainThread) return false;
+      if (isMainThread) {
+        return false;
+      }
 
-      if ("1".equals(System.getenv("JAVA_STARTED_ON_FIRST_THREAD_" + processID))) return false;
+      if ("1".equals(System.getenv("JAVA_STARTED_ON_FIRST_THREAD_" + processID))) {
+
+        return false;
+      }
     }
 
     // Check whether this JVM process is a child JVM process already.
@@ -205,7 +222,9 @@ public class StartupHelper {
     }
 
     jvmArgs.add(javaExecPath);
-    if (isMac) jvmArgs.add("-XstartOnFirstThread");
+    if (isMac) {
+      jvmArgs.add("-XstartOnFirstThread");
+    }
     jvmArgs.add("-D" + JVM_RESTARTED_ARG + "=true");
     jvmArgs.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
     jvmArgs.add("-cp");
@@ -213,8 +232,9 @@ public class StartupHelper {
     String mainClass = System.getenv("JAVA_MAIN_CLASS_" + processID);
     if (mainClass == null) {
       StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-      if (trace.length > 0) mainClass = trace[trace.length - 1].getClassName();
-      else {
+      if (trace.length > 0) {
+        mainClass = trace[trace.length - 1].getClassName();
+      } else {
         System.err.println("The main class could not be determined.");
         return false;
       }
@@ -223,10 +243,15 @@ public class StartupHelper {
 
     try {
       ProcessBuilder processBuilder = new ProcessBuilder(jvmArgs);
-      if (!isMac) processBuilder.environment().put("__GL_THREADED_OPTIMIZATIONS", "0");
+      if (!isMac) {
+        processBuilder.environment().put("__GL_THREADED_OPTIMIZATIONS", "0");
+      }
 
-      if (!inheritIO) processBuilder.start();
-      else processBuilder.inheritIO().start().waitFor();
+      if (!inheritIO) {
+        processBuilder.start();
+      } else {
+        processBuilder.inheritIO().start().waitFor();
+      }
     } catch (Exception e) {
       System.err.println("There was a problem restarting the JVM.");
       // noinspection CallToPrintStackTrace
@@ -237,12 +262,16 @@ public class StartupHelper {
   }
 
   private static String getJreErrMsg(boolean isMac) {
-    if (isMac) return MAC_JRE_ERR_MSG;
-    else return LINUX_JRE_ERR_MSG;
+    if (isMac) {
+      return MAC_JRE_ERR_MSG;
+    }
+    return LINUX_JRE_ERR_MSG;
   }
 
   private static long getProcessID(boolean isMac) {
-    if (isMac) return LibC.getpid();
-    else return UNISTD.getpid();
+    if (isMac) {
+      return LibC.getpid();
+    }
+    return UNISTD.getpid();
   }
 }

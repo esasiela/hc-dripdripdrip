@@ -32,6 +32,13 @@ allprojects {
 configure(subprojects) {
   apply plugin: 'java-library'
   apply plugin: 'com.diffplug.spotless'
+  apply plugin: 'checkstyle'
+
+  checkstyle {
+    toolVersion = '14.4.0'
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+    maxWarnings = 0
+  }
 
   spotless {
     java {
