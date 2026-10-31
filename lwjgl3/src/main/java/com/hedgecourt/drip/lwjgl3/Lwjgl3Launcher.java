@@ -7,10 +7,8 @@ import com.hedgecourt.drip.DripMain;
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
   public static void main(String[] args) {
-    // This handles macOS support and helps on Windows.
-    if (StartupHelper.startNewJvmIfRequired()) {
-      return;
-    }
+    if (StartupHelper.startNewJvmIfRequired())
+      return; // This handles macOS support and helps on Windows.
     createApplication();
   }
 

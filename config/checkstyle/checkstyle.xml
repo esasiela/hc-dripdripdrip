@@ -14,7 +14,6 @@
     <module name="RedundantModifier"/>
     <module name="EmptyStatement"/>
     <module name="EmptyBlock"/>
-    <module name="NeedBraces"/>
     <module name="MissingSwitchDefault"/>
     <module name="FallThrough"/>
     <module name="EqualsHashCode"/>
