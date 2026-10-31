@@ -14,6 +14,8 @@ Dependency direction is one-way: `lwjgl3` -> `core` -> `sim`. Never the reverse.
 - Tests only: `./gradlew test`
 - Sim tests only: `./gradlew :sim:test`
 - Run the game: `./gradlew lwjgl3:run`
+- Auto-format: `./gradlew spotlessApply` (run before committing)
+- `build` also runs `spotlessCheck` (google-java-format) and Checkstyle on all modules, plus tests. Fix Checkstyle findings in code; do not suppress them.
 
 ## Conventions
 - Land is `int[]` (0 = void, 1..7 = height). Water is `float[]`. Index is `y * width + x`. Never hard-code map dimensions.

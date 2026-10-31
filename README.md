@@ -31,3 +31,15 @@ Useful Gradle tasks and flags:
 
 Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
 For example, `core:clean` removes `build` folder only from the `core` project.
+
+## Git hooks
+
+A `pre-commit` hook refuses commits on `main`. Hooks are not versioned by git, so run this once per clone:
+
+```
+git config core.hooksPath scripts/git-hooks
+```
+
+## Code quality
+
+`./gradlew build` also runs Spotless (google-java-format) and Checkstyle. Run `./gradlew spotlessApply` to auto-format.
