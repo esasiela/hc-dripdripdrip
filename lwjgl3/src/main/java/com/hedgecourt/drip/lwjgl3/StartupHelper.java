@@ -90,6 +90,14 @@ public class StartupHelper {
     return startNewJvmIfRequired(true);
   }
 
+  /** Like {@link #startNewJvmIfRequired()}, but passes {@code args} on to the child JVM. */
+  public static boolean startNewJvmIfRequired(String[] args) {
+    programArgs = args;
+    return startNewJvmIfRequired(true);
+  }
+
+  private static String[] programArgs = new String[0];
+
   /**
    * Applies the utilities as described by {@link StartupHelper}'s Javadoc.
    *
@@ -220,6 +228,7 @@ public class StartupHelper {
       }
     }
     jvmArgs.add(mainClass);
+    jvmArgs.addAll(java.util.Arrays.asList(programArgs));
 
     try {
       ProcessBuilder processBuilder = new ProcessBuilder(jvmArgs);
