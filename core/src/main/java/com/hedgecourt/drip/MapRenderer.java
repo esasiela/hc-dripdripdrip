@@ -8,6 +8,12 @@ import com.hedgecourt.drip.sim.Grid;
 
 /** Draws land tiles top-down as solid squares, only over the visible area. */
 public class MapRenderer {
+  /** Grid lines are hidden when tiles are smaller than this many screen pixels. */
+  static final float MIN_GRID_PIXELS_PER_TILE = 4f;
+
+  /** Subtle dark line: black at 25% alpha. */
+  private static final Color GRID_COLOR = new Color(0f, 0f, 0f, 0.25f);
+
   private final Texture pixel;
 
   public MapRenderer() {
@@ -37,7 +43,31 @@ public class MapRenderer {
         batch.draw(pixel, left, viewHeight - bottom, right - left, bottom - top);
       }
     }
+    if (gridVisible(camera.pixelsPerTile())) {
+      drawGrid(batch, camera, viewHeight, x0, x1, y0, y1);
+    }
     batch.setColor(Color.WHITE);
+  }
+
+  /** Whether tiles are big enough on screen for grid lines to be useful. */
+  static boolean gridVisible(float pixelsPerTile) {
+    return pixelsPerTile >= MIN_GRID_PIXELS_PER_TILE;
+  }
+
+  /** Draws 1-pixel lines on the boundaries between visible tiles (not around the outside). */
+  private void drawGrid(
+      SpriteBatch batch, MapCamera camera, float viewHeight, int x0, int x1, int y0, int y1) {
+    float left = Math.round(camera.screenX(x0));
+    float right = Math.round(camera.screenX(x1 + 1));
+    float top = Math.round(camera.screenY(y0));
+    float bottom = Math.round(camera.screenY(y1 + 1));
+    batch.setColor(GRID_COLOR);
+    for (int x = x0 + 1; x <= x1; x++) {
+      batch.draw(pixel, Math.round(camera.screenX(x)), viewHeight - bottom, 1f, bottom - top);
+    }
+    for (int y = y0 + 1; y <= y1; y++) {
+      batch.draw(pixel, left, viewHeight - Math.round(camera.screenY(y)), right - left, 1f);
+    }
   }
 
   public void dispose() {
