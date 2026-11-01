@@ -9,11 +9,6 @@ import org.junit.jupiter.api.Test;
 
 class GridTest {
   @Test
-  void guaranteedFailure() {
-      assertEquals(2, 3);
-  }
-
-  @Test
   void indexIsRowMajor() {
     Grid g = new Grid(5, 3);
     assertEquals(0, g.index(0, 0));

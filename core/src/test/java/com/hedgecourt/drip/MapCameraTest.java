@@ -14,6 +14,11 @@ class MapCameraTest {
   }
 
   @Test
+  void guaranteedFailure() {
+    assertEquals(2, 3);
+  }
+
+  @Test
   void minZoomFitsWholeMap() {
     MapCamera c = camera(128, 64, 1024, 768);
     assertEquals(8f, c.minPixelsPerTile(), 1e-4);
