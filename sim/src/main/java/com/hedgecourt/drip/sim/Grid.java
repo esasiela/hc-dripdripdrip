@@ -4,7 +4,8 @@ package com.hedgecourt.drip.sim;
  * Rectangular tile grid. Land is 0 (void) or 1..7 (height); water is depth. Index is {@code y *
  * width + x}.
  */
-public class Grid {
+public class Grid 
+{
   public final int width;
   public final int height;
   public final int[] land;
@@ -28,7 +29,7 @@ public class Grid {
   public int index(int x, int y) {
     if (!inBounds(x, y)) {
       throw new IndexOutOfBoundsException(
-          "(" + x + ", " + y + ") out of bounds for grid " + width + "x" + height);
+          "(" + x + ", " + y + ") out of bounds for grid " + width + "x" + height + "long line long line long line long line");
     }
     return y * width + x;
   }
