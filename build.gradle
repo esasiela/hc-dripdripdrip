@@ -86,6 +86,17 @@ configure(subprojects) {
 
   tasks.withType(Test).configureEach {
     useJUnitPlatform()
+    testLogging {
+      events "passed", "skipped", "failed"
+      exceptionFormat "full"
+    }
+    afterSuite { desc, result ->
+      if (!desc.parent) {
+        println "${project.name}: ${result.testCount} tests, " +
+          "${result.successfulTestCount} passed, ${result.failedTestCount} failed, " +
+          "${result.skippedTestCount} skipped"
+      }
+    }
   }
 }
 
