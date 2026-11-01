@@ -46,4 +46,4 @@ The reviewer is one person who must be able to read the whole PR carefully. Big 
 - Work one story at a time. Use plan mode first and show the plan before editing.
 - Stay within the current story's scope. If you notice something out of scope, note it instead of doing it (it can go in `docs/backlog.md`).
 - When finished, report what changed, what you verified, and anything left open.
-- Update `docs/` if you change a decision (map format, algorithm parameters).
+- In the same PR, move the finished story to Done in `docs/backlog.md` (by name, no PR number) and update any docs the change affects, such as `docs/design.md` if a decision or parameter changed. Planning changes (new stories, reordering) are not part of a code PR.

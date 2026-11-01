@@ -1,13 +1,11 @@
 # Backlog
 
-A story is one feature or change delivered as **one small PR**: a one-line goal plus a few acceptance bullets. Order within a section is priority. The roadmap (`docs/roadmap.md`) holds the big themes; this file holds the stories. When a story is merged, move it to Done with the PR number.
+A story is one feature or change delivered as **one small PR**: a one-line goal plus a few acceptance bullets. Order within a section is priority. The roadmap (`docs/roadmap.md`) holds the big themes; this file holds the stories. When a story is merged, it moves to Done by name (no PR number; `git log` has it) in the same PR that delivers it. Planning changes (new stories, reordering) go in their own small docs PR.
 
 Story prompts live in `docs/prompts/`. Stories not yet written up as prompts are kept short here and expanded when they come up.
 
 ## Now
-1. **CI readability** (chore, done manually by the user). Gradle logging level `lifecycle`; each test printed as passed/failed/skipped; one summary line per module (tests, passed, failed, skipped). Optional: upload the HTML test report as an artifact.
-2. **M1.1 Grid wireframe** (`prompts/M1.1-grid-wireframe.md`). Thin always-on grid lines between tiles, hidden when tiles are too small to read.
-3. **M1.2 Settings screen** (`prompts/M1.2-settings-screen.md`). A mouse-operable settings panel with one checkbox that toggles the grid.
+1. **M1.2 Settings screen** (`prompts/M1.2-settings-screen.md`). A mouse-operable settings panel with one checkbox that toggles the grid.
 
 ## Next (viewing aids)
 - **Hover tile highlight.** A slightly thicker outline on the tile under the cursor, as a checkbox in the settings screen.
@@ -37,8 +35,12 @@ Rough breakdown of the flow theme into stories. Each should be its own PR:
 - Settings persistence between runs.
 - Print "passed" tests in CI log or publish a test summary on the PR.
 - Decide whether story names keep the `M1.x` style or switch to descriptive names.
+- Cap on how far the camera can zoom out (for example a 10 px/tile floor). Today the minimum zoom is "whole map fits on screen", so a hard floor would stop large maps being seen whole in a small window. The grid already hides below 4 px/tile. Decide after living with it.
 
 ## Done
-- M0 scaffold (PR #1 commit history; see git log)
-- M0.5 CI and quality gates (#2)
+- M0 scaffold
+- M0.5 CI and quality gates
 - M1 land render (loader and tests, tileset, camera, HUD, test maps)
+- CI readability (Gradle `lifecycle` logging, each test printed as passed/failed/skipped, per-module summary line)
+- CI failure demo (`./gradlew build --continue` so independent failures all show in one run)
+- M1.1 Grid wireframe (always-on grid, hidden below 4 px/tile)
