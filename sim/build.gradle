@@ -2,3 +2,7 @@
 eclipse.project.name = appName + '-sim'
 
 // Pure Java simulation: must never depend on libGDX.
+
+dependencies {
+  api "com.fasterxml.jackson.core:jackson-databind:2.18.2"
+}
