@@ -4,4 +4,5 @@ package com.hedgecourt.drip;
 public class ViewSettings {
   public boolean showGrid = true;
   public boolean highlightHovered = true;
+  public boolean showWater = true;
 }
