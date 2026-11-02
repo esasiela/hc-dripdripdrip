@@ -86,6 +86,7 @@ public class DripMain extends ApplicationAdapter {
     batch.setProjectionMatrix(projection);
     batch.begin();
     mapRenderer.render(batch, map.grid(), tileset, camera, settings, vh);
+    drawHighlight(vh);
     drawHud(vh);
     batch.end();
     helpOverlay.render(Gdx.graphics.getDeltaTime());
@@ -111,6 +112,20 @@ public class DripMain extends ApplicationAdapter {
       float step = KEY_PAN_PIXELS_PER_SECOND * delta;
       camera.panPixels(dx * step, dy * step);
     }
+  }
+
+  private void drawHighlight(float vh) {
+    int index = tileUnderCursor();
+    int x = Gdx.input.getX();
+    int y = Gdx.input.getY();
+    if (!settings.highlightHovered
+        || index < 0
+        || settingsPanel.isOver(x, y)
+        || helpOverlay.isOver(x, y)) {
+      return;
+    }
+    int width = map.grid().width;
+    mapRenderer.drawHighlight(batch, camera, index % width, index / width, vh);
   }
 
   /** Grid index of the map tile under the mouse cursor, or -1 if the cursor is off the map. */
