@@ -113,14 +113,27 @@ public class DripMain extends ApplicationAdapter {
     }
   }
 
-  private void drawHud(float vh) {
+  /** Grid index of the map tile under the mouse cursor, or -1 if the cursor is off the map. */
+  private int tileUnderCursor() {
     Grid g = map.grid();
     int tx = camera.tileX(Gdx.input.getX());
     int ty = camera.tileY(Gdx.input.getY());
+    return g.inBounds(tx, ty) ? g.index(tx, ty) : -1;
+  }
+
+  private void drawHud(float vh) {
+    Grid g = map.grid();
     String tile = "-";
-    if (g.inBounds(tx, ty)) {
-      int land = g.land[g.index(tx, ty)];
-      tile = "(" + tx + ", " + ty + ") height " + (land == 0 ? "void" : String.valueOf(land));
+    int index = tileUnderCursor();
+    if (index >= 0) {
+      int land = g.land[index];
+      tile =
+          "("
+              + index % g.width
+              + ", "
+              + index / g.width
+              + ") height "
+              + (land == 0 ? "void" : String.valueOf(land));
     }
     String[] lines = {
       "FPS: " + Gdx.graphics.getFramesPerSecond(),
