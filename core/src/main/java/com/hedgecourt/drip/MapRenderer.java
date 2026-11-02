@@ -14,6 +14,14 @@ public class MapRenderer {
   /** Subtle dark line: black at 25% alpha. */
   private static final Color GRID_COLOR = new Color(0f, 0f, 0f, 0.25f);
 
+  /**
+   * Highlight ring width on screen, split into an outer dark third and an inner light two thirds.
+   */
+  static final float HIGHLIGHT_PIXELS = 3f;
+
+  private static final Color HIGHLIGHT_DARK = new Color(0f, 0f, 0f, 1f);
+  private static final Color HIGHLIGHT_LIGHT = new Color(1f, 1f, 1f, 1f);
+
   private final Texture pixel;
 
   public MapRenderer() {
@@ -52,6 +60,42 @@ public class MapRenderer {
       drawGrid(batch, camera, viewHeight, x0, x1, y0, y1);
     }
     batch.setColor(Color.WHITE);
+  }
+
+  /** Ring width for a tile of the given size: constant on screen, but never over half the tile. */
+  static float highlightWidth(float pixelsPerTile) {
+    return Math.min(HIGHLIGHT_PIXELS, pixelsPerTile / 2f);
+  }
+
+  /**
+   * Outlines one tile with a dark outer and light inner ring, drawn inside the tile bounds. Call
+   * after {@link #render}; the batch must be begun with a screen-pixel projection.
+   */
+  public void drawHighlight(SpriteBatch batch, MapCamera camera, int tx, int ty, float viewHeight) {
+    float left = Math.round(camera.screenX(tx));
+    float right = Math.round(camera.screenX(tx + 1));
+    float top = Math.round(camera.screenY(ty));
+    float bottom = Math.round(camera.screenY(ty + 1));
+    float width = highlightWidth(Math.min(right - left, bottom - top));
+    batch.setColor(HIGHLIGHT_DARK);
+    drawRing(batch, left, viewHeight - bottom, right - left, bottom - top, width / 3f);
+    batch.setColor(HIGHLIGHT_LIGHT);
+    drawRing(
+        batch,
+        left + width / 3f,
+        viewHeight - bottom + width / 3f,
+        right - left - 2 * width / 3f,
+        bottom - top - 2 * width / 3f,
+        width * 2f / 3f);
+    batch.setColor(Color.WHITE);
+  }
+
+  /** Draws a rectangular ring of the given thickness inside the rectangle (GL coordinates). */
+  private void drawRing(SpriteBatch batch, float x, float y, float w, float h, float t) {
+    batch.draw(pixel, x, y, w, t);
+    batch.draw(pixel, x, y + h - t, w, t);
+    batch.draw(pixel, x, y + t, t, h - 2 * t);
+    batch.draw(pixel, x + w - t, y + t, t, h - 2 * t);
   }
 
   /** Whether the grid is enabled and tiles are big enough to show it. */

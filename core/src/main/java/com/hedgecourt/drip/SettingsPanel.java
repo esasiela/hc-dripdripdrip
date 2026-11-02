@@ -42,6 +42,10 @@ public class SettingsPanel implements Disposable {
     panel.defaults().left().pad(2);
 
     addCheckbox("Show grid", () -> settings.showGrid, v -> settings.showGrid = v);
+    addCheckbox(
+        "Highlight hovered tile",
+        () -> settings.highlightHovered,
+        v -> settings.highlightHovered = v);
 
     root.setFillParent(true);
     root.top().right().pad(8);

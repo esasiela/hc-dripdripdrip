@@ -7,7 +7,6 @@ Story prompts live in `docs/prompts/`. Stories not yet written up as prompts are
 ## Now
 
 ## Next (viewing aids)
-- **M1.4 Hover tile highlight** (`prompts/M1.4-hover-highlight.md`). A thicker, high-contrast outline on the tile under the cursor, toggled by a "Highlight hovered tile" checkbox in the settings panel.
 - **Map border and camera padding.** A bright border around the whole map, with the camera clamped so the border is fully visible at the edges.
 - **Edge shading (cheap version).** Darken a thin strip along a tile edge where the neighbor to the north or west is higher, for a drop-shadow effect. No wang/blob tilesets yet.
 - **Richer cursor inspector.** HUD shows land, water depth and surface height for the tile under the cursor (land height is already shown).
@@ -46,3 +45,4 @@ Rough breakdown of the flow theme into stories. Each should be its own PR:
 - M1.1 Grid wireframe (always-on grid, hidden below 4 px/tile)
 - M1.2 Settings screen (F1 panel, Scene2D, `ViewSettings`, Show grid checkbox)
 - M1.3 Help overlay (`?` toggles a non-modal list of input mappings, `HelpMappings`)
+- M1.4 Hover tile highlight (two-tone 3 px outline on the hovered tile, "Highlight hovered tile" checkbox)

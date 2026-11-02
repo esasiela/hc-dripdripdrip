@@ -9,4 +9,9 @@ class ViewSettingsTest {
   void gridShownByDefault() {
     assertTrue(new ViewSettings().showGrid);
   }
+
+  @Test
+  void highlightShownByDefault() {
+    assertTrue(new ViewSettings().highlightHovered);
+  }
 }
