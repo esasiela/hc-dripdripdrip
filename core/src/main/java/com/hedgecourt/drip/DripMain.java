@@ -21,6 +21,7 @@ public class DripMain extends ApplicationAdapter {
   private BitmapFont font;
   private MapRenderer mapRenderer;
   private MapCatalog catalog;
+  private final ViewSettings settings = new ViewSettings();
   private final MapCamera camera = new MapCamera();
   private final Matrix4 projection = new Matrix4();
   private int mapIndex;
@@ -77,7 +78,7 @@ public class DripMain extends ApplicationAdapter {
     ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
     batch.setProjectionMatrix(projection);
     batch.begin();
-    mapRenderer.render(batch, map.grid(), tileset, camera, vh);
+    mapRenderer.render(batch, map.grid(), tileset, camera, settings, vh);
     drawHud(vh);
     batch.end();
   }

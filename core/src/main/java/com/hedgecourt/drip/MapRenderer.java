@@ -26,7 +26,12 @@ public class MapRenderer {
 
   /** Draws the visible tiles; the batch must be begun with a screen-pixel projection. */
   public void render(
-      SpriteBatch batch, Grid grid, Tileset tileset, MapCamera camera, float viewHeight) {
+      SpriteBatch batch,
+      Grid grid,
+      Tileset tileset,
+      MapCamera camera,
+      ViewSettings settings,
+      float viewHeight) {
     int x0 = camera.firstVisibleX();
     int x1 = camera.lastVisibleX();
     int y0 = camera.firstVisibleY();
@@ -43,10 +48,15 @@ public class MapRenderer {
         batch.draw(pixel, left, viewHeight - bottom, right - left, bottom - top);
       }
     }
-    if (gridVisible(camera.pixelsPerTile())) {
+    if (gridShown(settings, camera.pixelsPerTile())) {
       drawGrid(batch, camera, viewHeight, x0, x1, y0, y1);
     }
     batch.setColor(Color.WHITE);
+  }
+
+  /** Whether the grid is enabled and tiles are big enough to show it. */
+  static boolean gridShown(ViewSettings settings, float pixelsPerTile) {
+    return settings.showGrid && gridVisible(pixelsPerTile);
   }
 
   /** Whether tiles are big enough on screen for grid lines to be useful. */
