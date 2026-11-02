@@ -106,6 +106,7 @@ Add a perf HUD (FPS and sim ms per tick) early. Brute force is expected to be fi
 
 ## Camera and controls
 - Pan (drag or WASD) and zoom (scroll), with clamping.
+- F1 opens the settings panel (Scene2D, mouse-operable, not persisted). Options live in `ViewSettings`; the panel swallows clicks and scrolls so the camera ignores them.
 - Min zoom: whole map fits on screen. Max zoom: about 64 px per tile. Pan clamps to the map edge.
 - From M3: pause, single-step, speed (1x/2x/4x...), debug toggles.
 

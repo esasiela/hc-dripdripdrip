@@ -5,7 +5,6 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 Story prompts live in `docs/prompts/`. Stories not yet written up as prompts are kept short here and expanded when they come up.
 
 ## Now
-1. **M1.2 Settings screen** (`prompts/M1.2-settings-screen.md`). A mouse-operable settings panel with one checkbox that toggles the grid.
 
 ## Next (viewing aids)
 - **Hover tile highlight.** A slightly thicker outline on the tile under the cursor, as a checkbox in the settings screen.
@@ -44,3 +43,4 @@ Rough breakdown of the flow theme into stories. Each should be its own PR:
 - CI readability (Gradle `lifecycle` logging, each test printed as passed/failed/skipped, per-module summary line)
 - CI failure demo (`./gradlew build --continue` so independent failures all show in one run)
 - M1.1 Grid wireframe (always-on grid, hidden below 4 px/tile)
+- M1.2 Settings screen (F1 panel, Scene2D, `ViewSettings`, Show grid checkbox)
