@@ -22,6 +22,17 @@ public class MapRenderer {
   private static final Color HIGHLIGHT_DARK = new Color(0f, 0f, 0f, 1f);
   private static final Color HIGHLIGHT_LIGHT = new Color(1f, 1f, 1f, 1f);
 
+  /**
+   * Water opacity at and beyond {@link #WATER_FULL_ALPHA_DEPTH}, so deep water stays see-through.
+   */
+  static final float WATER_MAX_ALPHA = 0.85f;
+
+  /** Depth (in land levels) at which water reaches {@link #WATER_MAX_ALPHA}; linear below it. */
+  static final float WATER_FULL_ALPHA_DEPTH = 3f;
+
+  /** Opacity floor for any non-zero depth, so a trace of water is distinguishable from dry land. */
+  static final float WATER_MIN_ALPHA = 0.1f;
+
   private final Texture pixel;
 
   public MapRenderer() {
@@ -56,10 +67,54 @@ public class MapRenderer {
         batch.draw(pixel, left, viewHeight - bottom, right - left, bottom - top);
       }
     }
+    if (settings.showWater) {
+      drawWater(batch, grid, tileset, camera, viewHeight, x0, x1, y0, y1);
+    }
     if (gridShown(settings, camera.pixelsPerTile())) {
       drawGrid(batch, camera, viewHeight, x0, x1, y0, y1);
     }
     batch.setColor(Color.WHITE);
+  }
+
+  /**
+   * Water opacity for a depth: 0 when dry, otherwise rising linearly (reaching the cap at {@link
+   * #WATER_FULL_ALPHA_DEPTH}), never below {@link #WATER_MIN_ALPHA} and never above {@link
+   * #WATER_MAX_ALPHA}.
+   */
+  static float waterAlpha(float depth) {
+    if (depth <= 0f) {
+      return 0f;
+    }
+    float linear = depth * WATER_MAX_ALPHA / WATER_FULL_ALPHA_DEPTH;
+    return Math.min(WATER_MAX_ALPHA, Math.max(WATER_MIN_ALPHA, linear));
+  }
+
+  /** Draws a translucent water square over each visible wet tile. */
+  private void drawWater(
+      SpriteBatch batch,
+      Grid grid,
+      Tileset tileset,
+      MapCamera camera,
+      float viewHeight,
+      int x0,
+      int x1,
+      int y0,
+      int y1) {
+    Color base = tileset.water();
+    for (int y = y0; y <= y1; y++) {
+      float top = Math.round(camera.screenY(y));
+      float bottom = Math.round(camera.screenY(y + 1));
+      for (int x = x0; x <= x1; x++) {
+        float depth = grid.water[y * grid.width + x];
+        if (depth <= 0f) {
+          continue;
+        }
+        float left = Math.round(camera.screenX(x));
+        float right = Math.round(camera.screenX(x + 1));
+        batch.setColor(base.r, base.g, base.b, waterAlpha(depth));
+        batch.draw(pixel, left, viewHeight - bottom, right - left, bottom - top);
+      }
+    }
   }
 
   /** Ring width for a tile of the given size: constant on screen, but never over half the tile. */

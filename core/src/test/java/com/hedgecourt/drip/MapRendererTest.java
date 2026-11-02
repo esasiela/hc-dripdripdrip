@@ -23,6 +23,30 @@ class MapRendererTest {
   }
 
   @Test
+  void waterAlphaIsZeroWhenDry() {
+    assertEquals(0f, MapRenderer.waterAlpha(0f));
+  }
+
+  @Test
+  void waterAlphaHasMinimumForAnyWater() {
+    assertTrue(MapRenderer.waterAlpha(0.0001f) >= MapRenderer.WATER_MIN_ALPHA);
+  }
+
+  @Test
+  void waterAlphaNeverDecreasesAndIsCapped() {
+    float previous = 0f;
+    for (float depth = 0f; depth <= 10f; depth += 0.01f) {
+      float alpha = MapRenderer.waterAlpha(depth);
+      assertTrue(alpha >= previous);
+      assertTrue(alpha <= MapRenderer.WATER_MAX_ALPHA);
+      previous = alpha;
+    }
+    assertEquals(MapRenderer.WATER_MAX_ALPHA, MapRenderer.waterAlpha(100f));
+    assertEquals(
+        MapRenderer.WATER_MAX_ALPHA, MapRenderer.waterAlpha(MapRenderer.WATER_FULL_ALPHA_DEPTH));
+  }
+
+  @Test
   void gridShownOnlyWhenEnabledAndBigEnough() {
     ViewSettings settings = new ViewSettings();
     assertTrue(MapRenderer.gridShown(settings, MapRenderer.MIN_GRID_PIXELS_PER_TILE));
