@@ -22,6 +22,7 @@ public class DripMain extends ApplicationAdapter {
   private BitmapFont font;
   private MapRenderer mapRenderer;
   private SettingsPanel settingsPanel;
+  private HelpOverlay helpOverlay;
   private MapCatalog catalog;
   private final ViewSettings settings = new ViewSettings();
   private final MapCamera camera = new MapCamera();
@@ -42,6 +43,7 @@ public class DripMain extends ApplicationAdapter {
     font = new BitmapFont();
     mapRenderer = new MapRenderer();
     settingsPanel = new SettingsPanel(font, settings);
+    helpOverlay = new HelpOverlay(font);
     catalog = new MapCatalog();
     if (catalog.names().isEmpty()) {
       throw new IllegalStateException("No maps found under maps/");
@@ -71,6 +73,7 @@ public class DripMain extends ApplicationAdapter {
     camera.setViewport(width, height);
     projection.setToOrtho2D(0, 0, width, height);
     settingsPanel.resize(width, height);
+    helpOverlay.resize(width, height);
   }
 
   @Override
@@ -85,6 +88,7 @@ public class DripMain extends ApplicationAdapter {
     mapRenderer.render(batch, map.grid(), tileset, camera, settings, vh);
     drawHud(vh);
     batch.end();
+    helpOverlay.render(Gdx.graphics.getDeltaTime());
     settingsPanel.render(Gdx.graphics.getDeltaTime());
   }
 
@@ -123,7 +127,7 @@ public class DripMain extends ApplicationAdapter {
       "Map: " + map.name() + " [" + mapKey + "] " + g.width + "x" + g.height,
       String.format("Zoom: %.1f px/tile", camera.pixelsPerTile()),
       "Tile: " + tile,
-      "F1: settings",
+      "F1: settings   ? help",
     };
     for (int i = 0; i < lines.length; i++) {
       font.draw(batch, lines[i], 8, vh - 8 - i * 18);
@@ -136,9 +140,10 @@ public class DripMain extends ApplicationAdapter {
     font.dispose();
     mapRenderer.dispose();
     settingsPanel.dispose();
+    helpOverlay.dispose();
   }
 
-  /** Mouse drag pans, scroll zooms, N/P switch maps. */
+  /** Mouse drag pans, scroll zooms, N/P switch maps, ? toggles help. */
   private class Controls extends InputAdapter {
     private int lastX;
     private int lastY;
@@ -175,6 +180,16 @@ public class DripMain extends ApplicationAdapter {
       camera.zoomAt(
           (float) Math.pow(SCROLL_ZOOM_STEP, -amountY), Gdx.input.getX(), Gdx.input.getY());
       return true;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+      // Typed character, so Shift+/ works regardless of keyboard layout.
+      if (character == '?') {
+        helpOverlay.toggle();
+        return true;
+      }
+      return false;
     }
 
     @Override
