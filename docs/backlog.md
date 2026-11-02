@@ -5,9 +5,10 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 Story prompts live in `docs/prompts/`. Stories not yet written up as prompts are kept short here and expanded when they come up.
 
 ## Now
+1. **M1.3 Help overlay** (`prompts/M1.3-help-overlay.md`). Press `?` to toggle a quick, read-only overlay listing the input mappings (WASD/arrows pan, drag pans, scroll zooms, `N`/`P` cycle maps, `F1` settings). Quick and dirty on purpose: it will later become a tab in a richer overlay. Same PR removes the "once it exists" wording from the input-mapping rule in `CLAUDE.md`.
 
 ## Next (viewing aids)
-- **Hover tile highlight.** A slightly thicker outline on the tile under the cursor, as a checkbox in the settings screen.
+- **M1.4 Hover tile highlight** (`prompts/M1.4-hover-highlight.md`). A thicker, high-contrast outline on the tile under the cursor, toggled by a "Highlight hovered tile" checkbox in the settings panel.
 - **Map border and camera padding.** A bright border around the whole map, with the camera clamped so the border is fully visible at the edges.
 - **Edge shading (cheap version).** Darken a thin strip along a tile edge where the neighbor to the north or west is higher, for a drop-shadow effect. No wang/blob tilesets yet.
 - **Richer cursor inspector.** HUD shows land, water depth and surface height for the tile under the cursor (land height is already shown).
@@ -34,6 +35,7 @@ Rough breakdown of the flow theme into stories. Each should be its own PR:
 - Settings persistence between runs.
 - Print "passed" tests in CI log or publish a test summary on the PR.
 - Decide whether story names keep the `M1.x` style or switch to descriptive names.
+- A single table of key bindings that both the input handling and the help overlay read from, so they can't drift apart. Revisit when the help overlay grows into a tabbed overlay.
 - Cap on how far the camera can zoom out (for example a 10 px/tile floor). Today the minimum zoom is "whole map fits on screen", so a hard floor would stop large maps being seen whole in a small window. The grid already hides below 4 px/tile. Decide after living with it.
 
 ## Done
