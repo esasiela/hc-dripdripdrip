@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
@@ -20,6 +21,7 @@ public class DripMain extends ApplicationAdapter {
   private SpriteBatch batch;
   private BitmapFont font;
   private MapRenderer mapRenderer;
+  private SettingsPanel settingsPanel;
   private MapCatalog catalog;
   private final ViewSettings settings = new ViewSettings();
   private final MapCamera camera = new MapCamera();
@@ -39,6 +41,7 @@ public class DripMain extends ApplicationAdapter {
     batch = new SpriteBatch();
     font = new BitmapFont();
     mapRenderer = new MapRenderer();
+    settingsPanel = new SettingsPanel(font, settings);
     catalog = new MapCatalog();
     if (catalog.names().isEmpty()) {
       throw new IllegalStateException("No maps found under maps/");
@@ -51,7 +54,7 @@ public class DripMain extends ApplicationAdapter {
       start = 0;
     }
     loadMap(start);
-    Gdx.input.setInputProcessor(new Controls());
+    Gdx.input.setInputProcessor(new InputMultiplexer(settingsPanel.stage(), new Controls()));
   }
 
   private void loadMap(int index) {
@@ -67,6 +70,7 @@ public class DripMain extends ApplicationAdapter {
   public void resize(int width, int height) {
     camera.setViewport(width, height);
     projection.setToOrtho2D(0, 0, width, height);
+    settingsPanel.resize(width, height);
   }
 
   @Override
@@ -81,6 +85,7 @@ public class DripMain extends ApplicationAdapter {
     mapRenderer.render(batch, map.grid(), tileset, camera, settings, vh);
     drawHud(vh);
     batch.end();
+    settingsPanel.render(Gdx.graphics.getDeltaTime());
   }
 
   private void pollKeys(float delta) {
@@ -118,6 +123,7 @@ public class DripMain extends ApplicationAdapter {
       "Map: " + map.name() + " [" + mapKey + "] " + g.width + "x" + g.height,
       String.format("Zoom: %.1f px/tile", camera.pixelsPerTile()),
       "Tile: " + tile,
+      "F1: settings",
     };
     for (int i = 0; i < lines.length; i++) {
       font.draw(batch, lines[i], 8, vh - 8 - i * 18);
@@ -129,15 +135,22 @@ public class DripMain extends ApplicationAdapter {
     batch.dispose();
     font.dispose();
     mapRenderer.dispose();
+    settingsPanel.dispose();
   }
 
   /** Mouse drag pans, scroll zooms, N/P switch maps. */
   private class Controls extends InputAdapter {
     private int lastX;
     private int lastY;
+    private boolean panning;
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+      // A press on an empty part of the panel must not start a map drag.
+      panning = !settingsPanel.isOver(screenX, screenY);
+      if (!panning) {
+        return true;
+      }
       lastX = screenX;
       lastY = screenY;
       return true;
@@ -145,6 +158,9 @@ public class DripMain extends ApplicationAdapter {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+      if (!panning) {
+        return true;
+      }
       camera.panPixels(screenX - lastX, screenY - lastY);
       lastX = screenX;
       lastY = screenY;
@@ -153,6 +169,9 @@ public class DripMain extends ApplicationAdapter {
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
+      if (settingsPanel.isOver(Gdx.input.getX(), Gdx.input.getY())) {
+        return true;
+      }
       camera.zoomAt(
           (float) Math.pow(SCROLL_ZOOM_STEP, -amountY), Gdx.input.getX(), Gdx.input.getY());
       return true;
@@ -160,6 +179,10 @@ public class DripMain extends ApplicationAdapter {
 
     @Override
     public boolean keyDown(int keycode) {
+      if (keycode == Input.Keys.F1) {
+        settingsPanel.toggle();
+        return true;
+      }
       if (keycode == Input.Keys.N) {
         loadMap(mapIndex + 1);
         return true;
