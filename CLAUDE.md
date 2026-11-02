@@ -24,7 +24,7 @@ Dependency direction is one-way: `lwjgl3` -> `core` -> `sim`. Never the reverse.
 - Flow reads from the current buffer and writes to the next buffer. Never read values written in the same tick.
 - Fixed-timestep sim, decoupled from render framerate.
 - Map files are JSON, v1 format in `docs/design.md`. Unknown keys are ignored. Loader errors must include row/column.
-- Input mappings: keyboard and mouse mappings are listed in the help overlay (toggled with `?`). Any commit that adds, removes, or changes a mapping must update that list in the same commit. (The help overlay is a backlog story; this rule applies once it exists.)
+- Input mappings: keyboard and mouse mappings are listed in the help overlay (toggled with `?`). Any commit that adds, removes, or changes a mapping must update that list in the same commit.
 - Keep it simple: no new dependencies without asking (JUnit 5 and a JSON library for `sim` are pre-approved). No premature optimization; measure first.
 
 ## Small PRs (important)

@@ -5,7 +5,6 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 Story prompts live in `docs/prompts/`. Stories not yet written up as prompts are kept short here and expanded when they come up.
 
 ## Now
-1. **M1.3 Help overlay** (`prompts/M1.3-help-overlay.md`). Press `?` to toggle a quick, read-only overlay listing the input mappings (WASD/arrows pan, drag pans, scroll zooms, `N`/`P` cycle maps, `F1` settings). Quick and dirty on purpose: it will later become a tab in a richer overlay. Same PR removes the "once it exists" wording from the input-mapping rule in `CLAUDE.md`.
 
 ## Next (viewing aids)
 - **M1.4 Hover tile highlight** (`prompts/M1.4-hover-highlight.md`). A thicker, high-contrast outline on the tile under the cursor, toggled by a "Highlight hovered tile" checkbox in the settings panel.
@@ -46,3 +45,4 @@ Rough breakdown of the flow theme into stories. Each should be its own PR:
 - CI failure demo (`./gradlew build --continue` so independent failures all show in one run)
 - M1.1 Grid wireframe (always-on grid, hidden below 4 px/tile)
 - M1.2 Settings screen (F1 panel, Scene2D, `ViewSettings`, Show grid checkbox)
+- M1.3 Help overlay (`?` toggles a non-modal list of input mappings, `HelpMappings`)
