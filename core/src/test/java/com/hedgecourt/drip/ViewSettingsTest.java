@@ -14,4 +14,9 @@ class ViewSettingsTest {
   void highlightShownByDefault() {
     assertTrue(new ViewSettings().highlightHovered);
   }
+
+  @Test
+  void waterShownByDefault() {
+    assertTrue(new ViewSettings().showWater);
+  }
 }

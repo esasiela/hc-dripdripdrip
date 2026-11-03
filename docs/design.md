@@ -20,7 +20,7 @@ The module boundary is the enforcement mechanism: if `sim` doesn't declare libGD
 
 ## Data model
 - `int[] land`, indexed `y * width + x`. `0` = **void**, `1..7` = land height.
-- `float[] water`, same indexing. Depth of water on the tile, `>= 0`. Void tiles always hold `0`.
+- `float[] water`, same indexing. Depth of water on the tile, `>= 0`, in the same units as land height (depth 1.0 = one land level). Void tiles always hold `0`.
 - Water surface = `land + water`.
 - Map size is configurable per map (no hard-coded dimensions anywhere).
 - Access goes through a small `Grid`/`World` class so storage can change later.
@@ -100,7 +100,9 @@ Add a perf HUD (FPS and sim ms per tick) early. Brute force is expected to be fi
 - Top-down, one square per tile. Layers drawn in order: land, water overlay, (later) shading, HUD.
 - **Tileset abstraction:** `Tileset` maps land level (0..7) to a drawable and provides the water color. First implementation is `RoygbivTileset`, generated in code with solid colors, no asset files. The map's `meta.tileset` selects it by name. Textured sets are later implementations of the same interface.
 - Void rendered black.
-- Water: blue with alpha proportional to depth, capped. A debug toggle shows water depth as a grayscale or numeric overlay (blue over rainbow can look muddy).
+- Water: the RGB of `Tileset.water()` (its alpha is ignored) with alpha computed from depth by `MapRenderer.waterAlpha`: 0 when dry, otherwise linear in depth (`WATER_MAX_ALPHA / WATER_FULL_ALPHA_DEPTH` per level), clamped to `[WATER_MIN_ALPHA, WATER_MAX_ALPHA]`. Current values: max 0.85, reached at depth 3, minimum 0.1. Toggled by the "Show water" setting (default on). The `water-depths` map is a deliberately impossible showcase for tuning these.
+- Layer order: land, water, grid lines, hover highlight, HUD.
+- A debug toggle shows water depth as a grayscale or numeric overlay (blue over rainbow can look muddy).
 - Draw only visible tiles (camera culling).
 - Later: shading at height boundaries.
 

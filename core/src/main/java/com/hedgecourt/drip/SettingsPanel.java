@@ -46,6 +46,7 @@ public class SettingsPanel implements Disposable {
         "Highlight hovered tile",
         () -> settings.highlightHovered,
         v -> settings.highlightHovered = v);
+    addCheckbox("Show water", () -> settings.showWater, v -> settings.showWater = v);
 
     root.setFillParent(true);
     root.top().right().pad(8);

@@ -8,9 +8,8 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 - Story prompts live in `docs/prompts/`, named `M<theme>.<seq>-<slug>.md` with two-digit numbers assigned by hand so they sort in order (for example `M02.01-static-water-rendering.md`). Branches stay descriptive (`feat/static-water-rendering`). Earlier prompts (M0 to M1.4) use an older numbering and are left as they are. A prompt that isn't next in line yet may stay unnumbered until its order is settled. Stories without a prompt yet are kept short here and expanded when they come up.
 
 ## Next (water display and scenario maps)
-1. **M02.01 Static water rendering** (`prompts/M02.01-static-water-rendering.md`). Draw water from the map's `water` layer (blue, alpha by depth, capped), with no physics, plus a "Show water" checkbox and a showcase map of impossible columns at different depths to tune how depth looks.
-2. **Richer cursor inspector.** HUD shows land, water depth and surface height for the tile under the cursor (land height is already shown).
-3. **Flow scenario maps** (`prompts/flow-scenario-maps.md`). Tiny, deterministic maps, each with a documented expected outcome, plus a doc and a test that keeps map and doc in agreement. These become the acceptance targets for flow.
+1. **Richer cursor inspector.** HUD shows land, water depth and surface height for the tile under the cursor (land height is already shown).
+2. **Flow scenario maps** (`prompts/flow-scenario-maps.md`). Tiny, deterministic maps, each with a documented expected outcome, plus a doc and a test that keeps map and doc in agreement. These become the acceptance targets for flow.
 
 ## Next (flow)
 Rough order, each its own PR. Prompts are written when the previous story merges, so they match what was actually built.
@@ -48,3 +47,4 @@ Rough order, each its own PR. Prompts are written when the previous story merges
 - M1.2 Settings screen (F1 panel, Scene2D, `ViewSettings`, Show grid checkbox)
 - M1.3 Help overlay (`?` toggles a non-modal list of input mappings, `HelpMappings`)
 - M1.4 Hover tile highlight (two-tone 3 px outline on the hovered tile, "Highlight hovered tile" checkbox)
+- M02.01 Static water rendering (water layer drawn under grid and highlight, alpha by depth, "Show water" checkbox, `water-depths` showcase map)

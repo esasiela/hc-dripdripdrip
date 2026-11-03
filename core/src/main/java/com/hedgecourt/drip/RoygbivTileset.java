@@ -12,7 +12,7 @@ public class RoygbivTileset implements Tileset {
     new Color(1.00f, 0.55f, 0.05f, 1f),
     new Color(1.00f, 0.90f, 0.10f, 1f),
     new Color(0.10f, 0.70f, 0.20f, 1f),
-    new Color(0.15f, 0.40f, 0.95f, 1f),
+    new Color(0.05f, 0.15f, 0.55f, 1f),
     new Color(0.30f, 0.10f, 0.60f, 1f),
     new Color(0.65f, 0.35f, 0.85f, 1f),
   };
