@@ -100,7 +100,7 @@ Add a perf readout in the inspector (FPS and sim ms per tick) early. Brute force
 - Top-down, one square per tile. Layers drawn in order: land, water overlay, grid, hover highlight, tile HUD, inspector overlay.
 - **Tileset abstraction:** `Tileset` maps land level (0..7) to a drawable and provides the water color (RGB; alpha is computed from depth by the renderer). First implementation is `RoygbivTileset`, generated in code with solid colors, no asset files. The map's `meta.tileset` selects it by name. Textured sets are later implementations of the same interface.
 - Void rendered black.
-- **Vocabulary:** the *Inspector* is the fixed upper-left data panel. *HUD* is reserved for the future tile-attached overlay drawn on the map near the hovered tile.
+- **Vocabulary:** the *Inspector* is the fixed upper-left data panel. *HUD* is the tile-attached overlay drawn on the map near the hovered tile.
 - Water: drawn using the tileset's water RGB. Alpha scales with depth (linearly from a small minimum floor to a cap), so the land under deep water is still faintly visible. Constants are tunable.
 - Draw only visible tiles (camera culling).
 - Later: shading at height boundaries.
@@ -111,9 +111,9 @@ Add a perf readout in the inspector (FPS and sim ms per tick) early. Brute force
 A fixed panel in the upper left of the screen. Shows global stats (FPS, map name and size, camera zoom) and per-tile data for the hovered tile (coordinates, land height, water depth, surface height). Utilitarian appearance — its purpose is to put every useful number in one place. Has a title line rendered in a larger font size.
 
 ### HUD (tile-attached)
-An overlay drawn on the map, positioned relative to the hovered tile (not the mouse cursor). Shows contextual tile data so the player can read it without looking away from the map. Hidden below a minimum zoom threshold since tiles need to be large enough on screen for the label to make sense beside them.
+An overlay drawn on the map, positioned relative to the hovered tile (not the mouse cursor). Shows contextual tile data so the player can read it without looking away from the map.
 
-**MVP (M02.03):** colored text — land (green) + water (blue) = surface (contrasting color). Fixed screen size, positioned above and centered on the hovered tile, shifting when near edges.
+**MVP (M02.03, built):** colored text `land + water = surface`: land green, water blue, surface white, separators light gray, with a 1 px dark shadow for legibility. Always shows the full label on land tiles (dry tiles show `0.00` water); void tiles show nothing. Fixed screen size at every zoom, with no zoom threshold. Positioned above the hovered tile, centered horizontally, 6 px gap, then clamped to the visible part of the map (the viewport intersected with the map's on-screen rectangle, inset by 6 px so the label stays just inside the edge), so tiles near an edge or corner share the same label position. Toggled by the "Show tile HUD" setting (default on); hidden while the cursor is over the settings panel or help overlay.
 
 **Vision:** a transparent donut ring around the hovered tile. The inner radius sits at the tile's diagonal corners (or slightly outside them with padding), so the entire HUD is drawn outside the tile. The donut carries the tile data in a more attractive visual form, with subtle shading and drop shadows. As the game grows, the donut gains richer content: status icons (terraforming in progress, tile reserved for a unit), and potentially action buttons. Action buttons would need a way to keep the HUD snapped to the tile while the mouse moves into the HUD area (for example, holding a modifier key). The donut and its interactions are later stories; the MVP just gets the data on screen.
 
