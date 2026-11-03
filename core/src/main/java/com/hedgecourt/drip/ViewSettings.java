@@ -5,4 +5,5 @@ public class ViewSettings {
   public boolean showGrid = true;
   public boolean highlightHovered = true;
   public boolean showWater = true;
+  public boolean showTileHud = true;
 }

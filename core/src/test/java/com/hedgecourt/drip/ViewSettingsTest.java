@@ -19,4 +19,9 @@ class ViewSettingsTest {
   void waterShownByDefault() {
     assertTrue(new ViewSettings().showWater);
   }
+
+  @Test
+  void tileHudShownByDefault() {
+    assertTrue(new ViewSettings().showTileHud);
+  }
 }
