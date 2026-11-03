@@ -8,23 +8,24 @@ import java.util.Locale;
 final class InspectorText {
   private InspectorText() {}
 
-  /** Lines describing the tile at {@code index}, or a single "-" line if index is negative. */
+  /** Always four lines for the tile at {@code index}; "-" stands in for data that doesn't exist. */
   static List<String> tileLines(Grid g, int index) {
     if (index < 0) {
-      return List.of("Tile:      -");
+      return lines("-", "-", "-", "-");
     }
-    String coords = "Tile:      (" + index % g.width + ", " + index / g.width + ")";
+    String coords = "(" + index % g.width + ", " + index / g.width + ")";
     int land = g.land[index];
     if (land == 0) {
-      return List.of(coords, "Land:      void");
+      return lines(coords, "void", "-", "-");
     }
     float water = g.water[index];
     String surface =
         water == 0 ? String.valueOf(land) : String.format(Locale.ROOT, "%.2f", land + water);
+    return lines(coords, String.valueOf(land), String.format(Locale.ROOT, "%.2f", water), surface);
+  }
+
+  private static List<String> lines(String tile, String land, String water, String surface) {
     return List.of(
-        coords,
-        "Land:      " + land,
-        "Water:     " + String.format(Locale.ROOT, "%.2f", water),
-        "Surface:  " + surface);
+        "Tile: " + tile, "Land:       " + land, "Water:     " + water, "Surface:  " + surface);
   }
 }
