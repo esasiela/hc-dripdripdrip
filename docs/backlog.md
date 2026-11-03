@@ -8,8 +8,9 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 - Story prompts live in `docs/prompts/`, named `M<theme>.<seq>-<slug>.md` with two-digit numbers assigned by hand so they sort in order (for example `M02.01-static-water-rendering.md`). Branches stay descriptive (`feat/static-water-rendering`). Earlier prompts (M0 to M1.4) use an older numbering and are left as they are. A prompt that isn't next in line yet may stay unnumbered until its order is settled. Stories without a prompt yet are kept short here and expanded when they come up.
 
 ## Next (water display and scenario maps)
-1. **Richer cursor inspector.** HUD shows land, water depth and surface height for the tile under the cursor (land height is already shown).
-2. **Flow scenario maps** (`prompts/flow-scenario-maps.md`). Tiny, deterministic maps, each with a documented expected outcome, plus a doc and a test that keeps map and doc in agreement. These become the acceptance targets for flow.
+1. **M02.02 Inspector panel** (`prompts/M02.02-inspector-panel.md`). Rename the upper-left overlay from "HUD" to "Inspector" in code, add a title line in larger font, and show water depth and surface height for the hovered tile.
+2. **M02.03 Tile HUD MVP** (`prompts/M02.03-tile-hud-mvp.md`). Colored text label near the hovered tile showing land + water = surface, fixed screen size, hidden at low zoom.
+3. **Flow scenario maps** (`prompts/flow-scenario-maps.md`). Tiny, deterministic maps, each with a documented expected outcome, plus a doc and a test that keeps map and doc in agreement. These become the acceptance targets for flow.
 
 ## Next (flow)
 Rough order, each its own PR. Prompts are written when the previous story merges, so they match what was actually built.
@@ -17,7 +18,7 @@ Rough order, each its own PR. Prompts are written when the previous story merges
 - Scenario tests: each scenario map reaches its documented equilibrium within tolerance; tune `k` and epsilon. Symmetry test.
 - Fixed-timestep loop in `core` with pause and single-step.
 - Speed controls (1x/2x/4x).
-- Render water changing over time; sim ms per tick in the HUD.
+- Render water changing over time; sim ms per tick in the inspector.
 - Settings: 4-neighbor vs 8-neighbor switch.
 
 ## Next (more viewing aids, lower priority)
@@ -36,6 +37,7 @@ Rough order, each its own PR. Prompts are written when the previous story merges
 - A single table of key bindings that both the input handling and the help overlay read from, so they can't drift apart. Revisit when the help overlay grows into a tabbed overlay.
 - Cap on how far the camera can zoom out (for example a 10 px/tile floor). Today the minimum zoom is "whole map fits on screen", so a hard floor would stop large maps being seen whole in a small window. The grid already hides below 4 px/tile. Decide after living with it.
 - GitHub Issues or Projects as the story tracker, if this file gets unwieldy. It would give stories real IDs, and PRs could say "Closes #n". Plan: try it with one story after a couple more file-based ones (stories M02.01 onward), then decide at a retro. Hand-numbered prompt files are fine until the two-digit numbers run out.
+- HUD donut layout and polish (see HUD vision in `docs/design.md`).
 
 ## Done
 - M0 scaffold
@@ -47,4 +49,4 @@ Rough order, each its own PR. Prompts are written when the previous story merges
 - M1.2 Settings screen (F1 panel, Scene2D, `ViewSettings`, Show grid checkbox)
 - M1.3 Help overlay (`?` toggles a non-modal list of input mappings, `HelpMappings`)
 - M1.4 Hover tile highlight (two-tone 3 px outline on the hovered tile, "Highlight hovered tile" checkbox)
-- M02.01 Static water rendering (water layer drawn under grid and highlight, alpha by depth, "Show water" checkbox, `water-depths` showcase map)
+- M02.01 Static water rendering (water layer drawn with alpha by depth, "Show water" checkbox, `water-depths` showcase map)
