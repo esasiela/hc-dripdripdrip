@@ -20,7 +20,7 @@ The module boundary is the enforcement mechanism: if `sim` doesn't declare libGD
 
 ## Data model
 - `int[] land`, indexed `y * width + x`. `0` = **void**, `1..7` = land height.
-- `float[] water`, same indexing. Depth of water on the tile, `>= 0`, in the same units as land height (depth 1.0 = one land level). Void tiles always hold `0`.
+- `float[] water`, same indexing. Depth of water on the tile, `>= 0`, in the same units as land height. Void tiles always hold `0`.
 - Water surface = `land + water`.
 - Map size is configurable per map (no hard-coded dimensions anywhere).
 - Access goes through a small `Grid`/`World` class so storage can change later.
@@ -97,22 +97,32 @@ If `sum(want) > water[i]`, scale every `want_j` down proportionally so the sum e
 Add a perf HUD (FPS and sim ms per tick) early. Brute force is expected to be fine into the hundreds of thousands of tiles. Later options: active-cell tracking (skip settled tiles), multithreading by row bands. Do not optimize before measuring.
 
 ## Rendering (core)
-- Top-down, one square per tile. Layers drawn in order: land, water overlay, (later) shading, HUD.
-- **Tileset abstraction:** `Tileset` maps land level (0..7) to a drawable and provides the water color. First implementation is `RoygbivTileset`, generated in code with solid colors, no asset files. The map's `meta.tileset` selects it by name. Textured sets are later implementations of the same interface.
+- Top-down, one square per tile. Layers drawn in order: land, water overlay, grid, hover highlight, tile HUD, inspector overlay.
+- **Tileset abstraction:** `Tileset` maps land level (0..7) to a drawable and provides the water color (RGB; alpha is computed from depth by the renderer). First implementation is `RoygbivTileset`, generated in code with solid colors, no asset files. The map's `meta.tileset` selects it by name. Textured sets are later implementations of the same interface.
 - Void rendered black.
-- Water: the RGB of `Tileset.water()` (its alpha is ignored) with alpha computed from depth by `MapRenderer.waterAlpha`: 0 when dry, otherwise linear in depth (`WATER_MAX_ALPHA / WATER_FULL_ALPHA_DEPTH` per level), clamped to `[WATER_MIN_ALPHA, WATER_MAX_ALPHA]`. Current values: max 0.85, reached at depth 3, minimum 0.1. Toggled by the "Show water" setting (default on). The `water-depths` map is a deliberately impossible showcase for tuning these.
-- Layer order: land, water, grid lines, hover highlight, HUD.
-- A debug toggle shows water depth as a grayscale or numeric overlay (blue over rainbow can look muddy).
+- Water: drawn using the tileset's water RGB. Alpha scales with depth (linearly from a small minimum floor to a cap), so the land under deep water is still faintly visible. Constants are tunable.
 - Draw only visible tiles (camera culling).
 - Later: shading at height boundaries.
+
+## UI overlays
+
+### Inspector
+A fixed panel in the upper left of the screen. Shows global stats (FPS, map name and size, camera zoom) and per-tile data for the hovered tile (coordinates, land height, water depth, surface height). Utilitarian appearance — its purpose is to put every useful number in one place. Has a title line rendered in a larger font size.
+
+### HUD (tile-attached)
+An overlay drawn on the map, positioned relative to the hovered tile (not the mouse cursor). Shows contextual tile data so the player can read it without looking away from the map. Hidden below a minimum zoom threshold since tiles need to be large enough on screen for the label to make sense beside them.
+
+**MVP (M02.03):** colored text — land (green) + water (blue) = surface (contrasting color). Fixed screen size, positioned above and centered on the hovered tile, shifting when near edges.
+
+**Vision:** a transparent donut ring around the hovered tile. The inner radius sits at the tile's diagonal corners (or slightly outside them with padding), so the entire HUD is drawn outside the tile. The donut carries the tile data in a more attractive visual form, with subtle shading and drop shadows. As the game grows, the donut gains richer content: status icons (terraforming in progress, tile reserved for a unit), and potentially action buttons. Action buttons would need a way to keep the HUD snapped to the tile while the mouse moves into the HUD area (for example, holding a modifier key). The donut and its interactions are later stories; the MVP just gets the data on screen.
 
 ## Camera and controls
 - Pan (drag or WASD) and zoom (scroll), with clamping.
 - F1 opens the settings panel (Scene2D, mouse-operable, not persisted). Options live in `ViewSettings`; the panel swallows clicks and scrolls so the camera ignores them.
 - Min zoom: whole map fits on screen. Max zoom: about 64 px per tile. Pan clamps to the map edge.
-- From M3: pause, single-step, speed (1x/2x/4x...), debug toggles.
+- With the flow stories: pause, single-step, speed (1x/2x/4x...), debug toggles.
 
-## Terraforming (M5)
+## Terraforming
 - Discrete and all-or-nothing: a chunk is removed or placed whole. The action takes time; if interrupted before completing, nothing happens. The sim applies the change only on completion.
 - Land is conserved: removing a chunk takes height 1 from a tile; placing adds 1. Heights are clamped to `1..7`. Void tiles can't be touched.
 - Starts as a point-and-click "god mode shovel", then grows (a terraformer unit, carried soil, multiple chunk sizes).
