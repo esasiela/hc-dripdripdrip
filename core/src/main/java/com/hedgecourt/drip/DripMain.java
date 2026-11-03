@@ -28,6 +28,7 @@ public class DripMain extends ApplicationAdapter {
   private SettingsPanel settingsPanel;
   private HelpOverlay helpOverlay;
   private MapCatalog catalog;
+  private final TileHud tileHud = new TileHud();
   private final ViewSettings settings = new ViewSettings();
   private final MapCamera camera = new MapCamera();
   private final Matrix4 projection = new Matrix4();
@@ -91,6 +92,7 @@ public class DripMain extends ApplicationAdapter {
     batch.begin();
     mapRenderer.render(batch, map.grid(), tileset, camera, settings, vh);
     drawHighlight(vh);
+    drawTileHud(vh);
     drawInspector(vh);
     batch.end();
     helpOverlay.render(Gdx.graphics.getDeltaTime());
@@ -130,6 +132,19 @@ public class DripMain extends ApplicationAdapter {
     }
     int width = map.grid().width;
     mapRenderer.drawHighlight(batch, camera, index % width, index / width, vh);
+  }
+
+  private void drawTileHud(float vh) {
+    int index = tileUnderCursor();
+    int x = Gdx.input.getX();
+    int y = Gdx.input.getY();
+    if (!settings.showTileHud
+        || index < 0
+        || settingsPanel.isOver(x, y)
+        || helpOverlay.isOver(x, y)) {
+      return;
+    }
+    tileHud.draw(batch, font, map.grid(), camera, index, Gdx.graphics.getWidth(), vh);
   }
 
   /** Grid index of the map tile under the mouse cursor, or -1 if the cursor is off the map. */
