@@ -8,8 +8,7 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 - Story prompts live in `docs/prompts/`, named `M<theme>.<seq>-<slug>.md` with two-digit numbers assigned by hand so they sort in order (for example `M02.01-static-water-rendering.md`). Branches stay descriptive (`feat/static-water-rendering`). Earlier prompts (M0 to M1.4) use an older numbering and are left as they are. A prompt that isn't next in line yet may stay unnumbered until its order is settled. Stories without a prompt yet are kept short here and expanded when they come up.
 
 ## Next (water display and scenario maps)
-1. **M02.03 Tile HUD MVP** (`prompts/M02.03-tile-hud-mvp.md`). Colored text label near the hovered tile showing land + water = surface, fixed screen size, hidden at low zoom.
-2. **Flow scenario maps** (`prompts/flow-scenario-maps.md`). Tiny, deterministic maps, each with a documented expected outcome, plus a doc and a test that keeps map and doc in agreement. These become the acceptance targets for flow.
+1. **Flow scenario maps** (`prompts/flow-scenario-maps.md`). Tiny, deterministic maps, each with a documented expected outcome, plus a doc and a test that keeps map and doc in agreement. These become the acceptance targets for flow.
 
 ## Next (flow)
 Rough order, each its own PR. Prompts are written when the previous story merges, so they match what was actually built.
@@ -50,3 +49,4 @@ Rough order, each its own PR. Prompts are written when the previous story merges
 - M1.4 Hover tile highlight (two-tone 3 px outline on the hovered tile, "Highlight hovered tile" checkbox)
 - M02.01 Static water rendering (water layer drawn with alpha by depth, "Show water" checkbox, `water-depths` showcase map)
 - M02.02 Inspector panel (upper-left overlay renamed from HUD, titled, shows water depth and surface)
+- M02.03 Tile HUD MVP (colored land + water = surface label above the hovered tile, "Show tile HUD" checkbox)
