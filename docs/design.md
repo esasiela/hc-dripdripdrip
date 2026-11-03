@@ -13,7 +13,7 @@ Gradle multi-module project (liftoff defaults plus one added module):
 | Module | Contents | Depends on |
 |---|---|---|
 | `sim` | Pure Java. Grid, flow, sources/drains, terraform rules, map data model and loader. **No libGDX imports. Ever.** | JSON lib only |
-| `core` | libGDX game: rendering, camera, input, tilesets, HUD | `sim`, libGDX |
+| `core` | libGDX game: rendering, camera, input, tilesets, inspector | `sim`, libGDX |
 | `lwjgl3` | Desktop launcher | `core` |
 
 The module boundary is the enforcement mechanism: if `sim` doesn't declare libGDX, an import fails to compile. This lets the sim be unit-tested headlessly, which is how we verify flow behavior without eyes.
@@ -94,12 +94,13 @@ If `sum(want) > water[i]`, scale every `want_j` down proportionally so the sum e
 - Symmetry: a symmetric map and initial state stays symmetric (catches update-order bias).
 
 ### Performance
-Add a perf HUD (FPS and sim ms per tick) early. Brute force is expected to be fine into the hundreds of thousands of tiles. Later options: active-cell tracking (skip settled tiles), multithreading by row bands. Do not optimize before measuring.
+Add a perf readout in the inspector (FPS and sim ms per tick) early. Brute force is expected to be fine into the hundreds of thousands of tiles. Later options: active-cell tracking (skip settled tiles), multithreading by row bands. Do not optimize before measuring.
 
 ## Rendering (core)
 - Top-down, one square per tile. Layers drawn in order: land, water overlay, grid, hover highlight, tile HUD, inspector overlay.
 - **Tileset abstraction:** `Tileset` maps land level (0..7) to a drawable and provides the water color (RGB; alpha is computed from depth by the renderer). First implementation is `RoygbivTileset`, generated in code with solid colors, no asset files. The map's `meta.tileset` selects it by name. Textured sets are later implementations of the same interface.
 - Void rendered black.
+- **Vocabulary:** the *Inspector* is the fixed upper-left data panel. *HUD* is reserved for the future tile-attached overlay drawn on the map near the hovered tile.
 - Water: drawn using the tileset's water RGB. Alpha scales with depth (linearly from a small minimum floor to a cap), so the land under deep water is still faintly visible. Constants are tunable.
 - Draw only visible tiles (camera culling).
 - Later: shading at height boundaries.
