@@ -15,6 +15,9 @@ final class TileHud {
   /** Gap in pixels between the tile's top edge and the label. */
   static final float GAP = 6f;
 
+  /** Minimum distance in pixels between the label and the edge of the visible map. */
+  static final float EDGE_PADDING = 6f;
+
   private static final Color LAND = new Color(0.35f, 0.9f, 0.35f, 1f);
   private static final Color WATER = new Color(0.35f, 0.65f, 1f, 1f);
   private static final Color SURFACE = Color.WHITE;
@@ -90,10 +93,10 @@ final class TileHud {
             camera.screenX(tx + 1),
             total,
             height,
-            Math.max(0f, camera.screenX(0)),
-            Math.max(0f, camera.screenY(0)),
-            Math.min(viewWidth, camera.screenX(g.width)),
-            Math.min(viewHeight, camera.screenY(g.height)));
+            Math.max(0f, camera.screenX(0)) + EDGE_PADDING,
+            Math.max(0f, camera.screenY(0)) + EDGE_PADDING,
+            Math.min(viewWidth, camera.screenX(g.width)) - EDGE_PADDING,
+            Math.min(viewHeight, camera.screenY(g.height)) - EDGE_PADDING);
 
     // Screen y is down; BitmapFont.draw takes the GL y (up) of the top of the text.
     float top = viewHeight - pos[1];
