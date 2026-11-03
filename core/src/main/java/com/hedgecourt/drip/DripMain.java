@@ -11,11 +11,15 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.hedgecourt.drip.sim.Grid;
 import com.hedgecourt.drip.sim.MapData;
+import java.util.ArrayList;
+import java.util.List;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class DripMain extends ApplicationAdapter {
   private static final float KEY_PAN_PIXELS_PER_SECOND = 600f;
   private static final float SCROLL_ZOOM_STEP = 1.15f;
+  private static final float INSPECTOR_TITLE_SCALE = 1.5f;
+  private static final float INSPECTOR_TITLE_HEIGHT = 30f;
 
   private final String startMap;
   private SpriteBatch batch;
@@ -87,7 +91,7 @@ public class DripMain extends ApplicationAdapter {
     batch.begin();
     mapRenderer.render(batch, map.grid(), tileset, camera, settings, vh);
     drawHighlight(vh);
-    drawHud(vh);
+    drawInspector(vh);
     batch.end();
     helpOverlay.render(Gdx.graphics.getDeltaTime());
     settingsPanel.render(Gdx.graphics.getDeltaTime());
@@ -136,29 +140,21 @@ public class DripMain extends ApplicationAdapter {
     return g.inBounds(tx, ty) ? g.index(tx, ty) : -1;
   }
 
-  private void drawHud(float vh) {
+  private void drawInspector(float vh) {
     Grid g = map.grid();
-    String tile = "-";
-    int index = tileUnderCursor();
-    if (index >= 0) {
-      int land = g.land[index];
-      tile =
-          "("
-              + index % g.width
-              + ", "
-              + index / g.width
-              + ") height "
-              + (land == 0 ? "void" : String.valueOf(land));
-    }
-    String[] lines = {
-      "FPS: " + Gdx.graphics.getFramesPerSecond(),
-      "Map: " + map.name() + " [" + mapKey + "] " + g.width + "x" + g.height,
-      String.format("Zoom: %.1f px/tile", camera.pixelsPerTile()),
-      "Tile: " + tile,
-      "F1: settings   ? help",
-    };
-    for (int i = 0; i < lines.length; i++) {
-      font.draw(batch, lines[i], 8, vh - 8 - i * 18);
+    List<String> lines = new ArrayList<>();
+    lines.add("FPS: " + Gdx.graphics.getFramesPerSecond());
+    lines.add("Map: " + map.name() + " [" + mapKey + "] " + g.width + "x" + g.height);
+    lines.add(String.format("Zoom: %.1f px/tile", camera.pixelsPerTile()));
+    lines.addAll(InspectorText.tileLines(g, tileUnderCursor()));
+    lines.add("F1: settings   ? help");
+
+    font.getData().setScale(INSPECTOR_TITLE_SCALE);
+    font.draw(batch, "Inspector", 8, vh - 8);
+    font.getData().setScale(1f);
+    float top = vh - 8 - INSPECTOR_TITLE_HEIGHT;
+    for (int i = 0; i < lines.size(); i++) {
+      font.draw(batch, lines.get(i), 8, top - i * 18);
     }
   }
 
