@@ -19,9 +19,11 @@ final class InspectorText {
       return lines(coords, "void", "-", "-");
     }
     float water = g.water[index];
-    String surface =
-        water == 0 ? String.valueOf(land) : String.format(Locale.ROOT, "%.2f", land + water);
-    return lines(coords, String.valueOf(land), String.format(Locale.ROOT, "%.2f", water), surface);
+    return lines(
+        coords,
+        String.valueOf(land),
+        String.format(Locale.ROOT, "%.2f", water),
+        String.format(Locale.ROOT, "%.2f", land + water));
   }
 
   private static List<String> lines(String tile, String land, String water, String surface) {

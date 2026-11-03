@@ -24,10 +24,10 @@ class InspectorTextTest {
   }
 
   @Test
-  void dryTileSurfaceIsInteger() {
+  void dryTileSurfaceHasTwoDecimals() {
     grid.land[2] = 3;
     assertEquals(
-        List.of("Tile: (2, 0)", "Land:       3", "Water:     0.00", "Surface:  3"),
+        List.of("Tile: (2, 0)", "Land:       3", "Water:     0.00", "Surface:  3.00"),
         InspectorText.tileLines(grid, 2));
   }
 
