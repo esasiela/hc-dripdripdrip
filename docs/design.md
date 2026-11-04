@@ -2,6 +2,8 @@
 
 A hobby top-down sim/game. The map is a grid of tiles; each tile has an integer land height and a float water depth. Water flows over the terrain. The player reshapes the land (terraforming) to steer the water. No victory conditions, no combat. The fun is in making water go where you want. Inspired by Creeper World 3, without the combat.
 
+The simulation is not a physics engine. It aims for game-feel: water that looks and behaves in a satisfying, predictable way. Real fluid dynamics (momentum, pressure, compressibility) are non-goals. Water has no momentum — it flows toward lower surfaces and stops when it gets there, with no overshoot, water hammer, or oscillation.
+
 ## Scope and non-goals
 - In scope: terrain, water flow, fixed water sources, drains, discrete terraforming, simple top-down rendering, hand-authored maps.
 - Non-goals for now: combat, enemies, victory/defeat, erosion, multiplayer, 3D or angled views, save games.
@@ -13,7 +15,7 @@ Gradle multi-module project (liftoff defaults plus one added module):
 | Module | Contents | Depends on |
 |---|---|---|
 | `sim` | Pure Java. Grid, flow, sources/drains, terraform rules, map data model and loader. **No libGDX imports. Ever.** | JSON lib only |
-| `core` | libGDX game: rendering, camera, input, tilesets, inspector | `sim`, libGDX |
+| `core` | libGDX game: rendering, camera, input, tilesets, inspector, HUD | `sim`, libGDX |
 | `lwjgl3` | Desktop launcher | `core` |
 
 The module boundary is the enforcement mechanism: if `sim` doesn't declare libGDX, an import fails to compile. This lets the sim be unit-tested headlessly, which is how we verify flow behavior without eyes.
@@ -73,24 +75,37 @@ Each tick is an ordered list of passes over the world, so new mechanics (and eve
 Fixed timestep, decoupled from render framerate (accumulator in the game loop). Sim speed is a multiplier on ticks per second; pause and single-step are first-class.
 
 ### Flow (v1 algorithm)
-Brute force over the whole grid with a double buffer: read from the current `water` array, write into `next`, then swap. Never read values written during the same tick.
+Brute force over the whole grid with a double buffer: read from the current `water` array, write into `next`, then swap. Never read values written during the same tick. "Downhill" always means by surface height (`land + water`), not land height alone.
 
-For each non-void tile `i` with `water[i] > 0`, surface `s_i = land[i] + water[i]`. For each neighbor `j` in the neighbor table that is non-void with `s_j < s_i`:
-- `diff = s_i - s_j`
-- `want_j = k * weight_j * diff`
+The flow logic lives in its own class so the algorithm can be swapped later without touching the tick pipeline or the rest of the sim.
 
-If `sum(want) > water[i]`, scale every `want_j` down proportionally so the sum equals `water[i]`. Then `next[i] -= want_j; next[j] += want_j`.
+**Constants:**
+- **`FLOW_RATE`** — fraction of each surface differential that moves per tick. Controls how fast water flows: steeper drops move more water. Starting value: **0.25**.
+- **`MAX_OUTFLOW`** — the most water (in absolute units) that can leave a single tile in one tick, regardless of differentials. Prevents a tile from dumping all its water at once. Starting value: **1.0**.
+- **`MIN_FLOW`** — smallest transfer that actually happens. Any computed flow below this is dropped to zero. This acts as surface tension / cohesion: a small puddle on flat land stops spreading when the differential to its neighbors falls below this threshold. Starting value: **0.001**.
 
-- **Neighbor table:** a list of `(dx, dy, weight)`. Default is 8 neighbors, orthogonal weight 1.0, diagonal weight about 0.7 (1/sqrt 2). A config switch selects the 4-neighbor table. Comparing the two is a config change.
-- **`k`:** a tunable flow fraction. Too high causes oscillation (two tiles swapping levels each tick). It should be low enough to be stable and high enough to look lively. Tune with tests and visual checks.
-- **Minimum flow threshold (epsilon):** flows below it are dropped so water settles and doesn't jitter forever.
-- **Corner leaking:** two walls touching only at a diagonal leave a gap water can squeeze through. Accepted in v1; revisit if it looks bad.
+**Per-tile flow steps:**
+
+For each non-void tile `i` with `water[i] > 0`:
+1. Compute `surface_i = land[i] + water[i]`.
+2. For each neighbor `j` in the neighbor table that is non-void and has `surface_j < surface_i`, compute `want_j = FLOW_RATE * weight_j * (surface_i - surface_j)`.
+3. Drop any `want_j < MIN_FLOW` to zero.
+4. Compute `total = sum(want_j)`. If `total > MAX_OUTFLOW`, scale all `want_j` down proportionally so the total equals `MAX_OUTFLOW`.
+5. **No-inversion cap:** compute `floor = max(surface_j)` across all receiving neighbors. The source tile's resulting surface must not drop below this floor. `max_give = water[i] - max(0, floor - land[i])`. If `total > max_give`, scale all `want_j` down proportionally so the total equals `max_give`. (This also prevents water from going negative.)
+6. Apply: `next[i] -= want_j; next[j] += want_j` for each remaining neighbor.
+
+**No momentum.** There is no velocity or direction memory between ticks. Each tick looks only at current surface heights. Water hitting a wall simply has nowhere to go and stops.
+
+**Neighbor table:** a list of `(dx, dy, weight)`. Default is 8 neighbors, orthogonal weight 1.0, diagonal weight approximately 0.707 (1/√2). A config switch selects the 4-neighbor table (later story). Comparing the two is a config change, not a code change.
+
+**Corner leaking:** two walls touching only at a diagonal leave a gap water can squeeze through. Accepted in v1; revisit if it looks bad.
 
 ### Invariants (must be tests)
 - **Mass conservation:** total water is unchanged by a flow tick (within float tolerance). It only changes via sources and drains.
 - Water is never negative; void tiles never hold water.
 - Determinism: same input produces identical output.
-- Equilibrium: water in a closed basin settles to a level surface within epsilon.
+- No inversion: a tile's surface after outflow is never lower than any neighbor it sent water to.
+- Equilibrium: water in a closed basin settles to a level surface within MIN_FLOW tolerance.
 - Symmetry: a symmetric map and initial state stays symmetric (catches update-order bias).
 
 ### Performance
@@ -132,5 +147,4 @@ An overlay drawn on the map, positioned relative to the hovered tile (not the mo
 - Placing land on a tile that holds water: push the water to neighbors, or block the placement?
 - Does a removed chunk go anywhere (carried by a unit, a global soil stock) or just vanish in god mode?
 - Sources and drains: constant rate only, or adjustable by the player?
-- Should flow rate depend on the height difference nonlinearly (faster waterfalls)?
 - Erosion (far future): likely a separate float layer (soil/sediment), not a change to the integer land array.
