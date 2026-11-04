@@ -7,17 +7,16 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 - When a story is merged, it moves to Done by name (no PR number; `git log` has it) in the same PR that delivers it. Planning changes (new stories, reordering) go in their own small docs PR.
 - Story prompts live in `docs/prompts/`, named `M<theme>.<seq>-<slug>.md` with two-digit numbers assigned by hand so they sort in order (for example `M02.01-static-water-rendering.md`). Branches stay descriptive (`feat/static-water-rendering`). Earlier prompts (M0 to M1.4) use an older numbering and are left as they are. A prompt that isn't next in line yet may stay unnumbered until its order is settled. Stories without a prompt yet are kept short here and expanded when they come up.
 
-## Next (water display and scenario maps)
-1. **Flow scenario maps** (`prompts/flow-scenario-maps.md`). Tiny, deterministic maps, each with a documented expected outcome, plus a doc and a test that keeps map and doc in agreement. These become the acceptance targets for flow.
-
 ## Next (flow)
-Rough order, each its own PR. Prompts are written when the previous story merges, so they match what was actually built.
-- Flow tick in `sim`: `World`, neighbor table, one double-buffered tick, with invariant tests (conservation, non-negative, void blocks, determinism).
-- Scenario tests: each scenario map reaches its documented equilibrium within tolerance; tune `k` and epsilon. Symmetry test.
-- Fixed-timestep loop in `core` with pause and single-step.
-- Speed controls (1x/2x/4x).
-- Render water changing over time; sim ms per tick in the inspector.
-- Settings: 4-neighbor vs 8-neighbor switch.
+1. **M02.04 Flow tick v1** (`prompts/M02.04-flow-tick-v1.md`). V1 flow algorithm in `sim` only: double-buffered flow with FLOW_RATE, MAX_OUTFLOW, MIN_FLOW, no-inversion cap, 8-neighbor table. One in-code test map (flat, one wet tile) with headless tests for conservation, non-negativity, void blocking, determinism, spread, no-inversion, still water, and MIN_FLOW threshold.
+2. **Flow scenario tests.** A few more in-code test maps verifying specific behaviors: stable bowl stays stable, uniform-surface-with-one-spike settles, water flows down a valley and stops. Each its own small story or batched if small enough.
+3. **Flow GUI wiring.** Wire the flow tick into the game loop so water moves on screen. Fixed timestep, pause and single-step controls.
+4. **Speed controls** (1x/2x/4x).
+5. **Sim ms per tick in the inspector.**
+6. **Settings: 4-neighbor vs 8-neighbor switch.**
+
+## Next (scenario maps, after basic flow works)
+- **Flow scenario maps** (`prompts/flow-scenario-maps.md`). Tiny JSON maps with documented expected equilibria, plus `docs/scenarios.md` and a test that keeps map and doc in agreement. Revisit and possibly split this prompt once the flow algorithm is proven.
 
 ## Next (more viewing aids, lower priority)
 - **Map border and camera padding.** A bright border around the whole map, with the camera clamped so the border is fully visible at the edges.
@@ -48,5 +47,5 @@ Rough order, each its own PR. Prompts are written when the previous story merges
 - M1.3 Help overlay (`?` toggles a non-modal list of input mappings, `HelpMappings`)
 - M1.4 Hover tile highlight (two-tone 3 px outline on the hovered tile, "Highlight hovered tile" checkbox)
 - M02.01 Static water rendering (water layer drawn with alpha by depth, "Show water" checkbox, `water-depths` showcase map)
-- M02.02 Inspector panel (upper-left overlay renamed from HUD, titled, shows water depth and surface)
-- M02.03 Tile HUD MVP (colored land + water = surface label above the hovered tile, "Show tile HUD" checkbox)
+- M02.02 Inspector panel (renamed from HUD, title line, water depth and surface in per-tile readout)
+- M02.03 Tile HUD MVP (colored land + water = surface label near hovered tile, clamped to map area)
