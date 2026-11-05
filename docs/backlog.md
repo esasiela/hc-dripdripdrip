@@ -8,7 +8,6 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 - Story prompts live in `docs/prompts/`, named `M<theme>.<seq>-<slug>.md` with two-digit numbers assigned by hand so they sort in order (for example `M02.01-static-water-rendering.md`). Branches stay descriptive (`feat/static-water-rendering`). Earlier prompts (M0 to M1.4) use an older numbering and are left as they are. A prompt that isn't next in line yet may stay unnumbered until its order is settled. Stories without a prompt yet are kept short here and expanded when they come up.
 
 ## Next (flow)
-1. **M02.04 Flow tick v1** (`prompts/M02.04-flow-tick-v1.md`). Flow algorithm in `sim` only: double-buffered, 4-neighbor table, `MAX_OUTFLOW` (water/sec) and `MIN_DIFFERENTIAL`, leveling cap so tile pairs settle instead of ping-ponging. One in-code test map (flat, one wet tile) plus small in-code maps, with headless tests for conservation, non-negativity, void blocking, determinism, symmetry, spread, two-tile leveling, speed limit, droplet draining, cohesion, and basin settling.
 2. **Flow scenario tests.** A few more in-code test maps verifying specific behaviors: stable bowl stays stable, uniform-surface-with-one-spike settles, water flows down a valley and stops. Each its own small story or batched if small enough.
 3. **Flow GUI wiring.** Wire the flow tick into the game loop so water moves on screen. Fixed timestep, pause and single-step controls.
 4. **Speed controls** (1x/2x/4x).
@@ -49,3 +48,4 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 - M02.01 Static water rendering (water layer drawn with alpha by depth, "Show water" checkbox, `water-depths` showcase map)
 - M02.02 Inspector panel (renamed from HUD, title line, water depth and surface in per-tile readout)
 - M02.03 Tile HUD MVP (colored land + water = surface label near hovered tile, clamped to map area)
+- M02.04 Flow tick v1 (`Flow` class in `sim`: double-buffered 4-neighbor flow, `MAX_OUTFLOW`, `MIN_DIFFERENTIAL`, headless invariant and behavior tests)
