@@ -131,6 +131,85 @@ class FlowTest {
   }
 
   @Test
+  void twoTilesLevelInOneTickThenStay() {
+    Grid g = flat(2, 1, 1);
+    g.water[0] = 1f;
+    Flow flow = new Flow(100f, Flow.MIN_DIFFERENTIAL);
+    flow.tick(g);
+    assertEquals(g.land[0] + at(g, 0, 0), g.land[1] + at(g, 1, 0), 1e-6f);
+    float[] level = g.water.clone();
+    run(flow, g, 5);
+    assertArrayEquals(level, g.water);
+  }
+
+  @Test
+  void speedLimitBindsOnLargeDifferential() {
+    Grid g = flat(2, 1, 1);
+    g.water[0] = 7f;
+    Flow flow = new Flow();
+    float cap = Flow.MAX_OUTFLOW / Flow.TICKS_PER_SECOND;
+    for (int t = 0; t < 30; t++) {
+      float before = at(g, 1, 0);
+      flow.tick(g);
+      assertEquals(cap, at(g, 1, 0) - before, 1e-6f, "tick " + t);
+    }
+    assertEquals(0.5f, at(g, 1, 0), 1e-4f);
+  }
+
+  @Test
+  void dropletOnHighLandDrains() {
+    Grid small = flat(2, 1, 1);
+    small.land[0] = 7;
+    small.water[0] = 0.01f;
+    new Flow().tick(small);
+    assertEquals(0f, at(small, 0, 0));
+
+    Grid bigger = flat(2, 1, 1);
+    bigger.land[0] = 7;
+    bigger.water[0] = 0.05f;
+    run(new Flow(), bigger, 5);
+    assertEquals(0f, at(bigger, 0, 0));
+    assertEquals(0.05f, at(bigger, 1, 0), EPS);
+  }
+
+  @Test
+  void shallowPuddleHoldsTogether() {
+    Grid g = bordered(7, 7);
+    g.water[g.index(3, 3)] = 0.05f;
+    float[] before = g.water.clone();
+    run(new Flow(), g, 10);
+    assertArrayEquals(before, g.water);
+  }
+
+  @Test
+  void basinSettles() {
+    Grid g = bordered(5, 5);
+    g.water[g.index(2, 2)] = 2f;
+    Flow flow = new Flow();
+    int ticks = 0;
+    boolean settled = false;
+    while (ticks < 100_000 && !settled) {
+      float[] before = g.water.clone();
+      flow.tick(g);
+      ticks++;
+      settled = Arrays.equals(before, g.water);
+    }
+    assertTrue(settled, "did not settle within " + ticks + " ticks: " + Arrays.toString(g.water));
+    assertEquals(2f, total(g), EPS);
+    for (int y = 1; y < 4; y++) {
+      for (int x = 1; x < 4; x++) {
+        float s = 1 + at(g, x, y);
+        if (x < 3) {
+          assertTrue(Math.abs(s - (1 + at(g, x + 1, y))) < Flow.MIN_DIFFERENTIAL);
+        }
+        if (y < 3) {
+          assertTrue(Math.abs(s - (1 + at(g, x, y + 1))) < Flow.MIN_DIFFERENTIAL);
+        }
+      }
+    }
+  }
+
+  @Test
   void staysMirrorSymmetric() {
     Grid g = bordered(9, 7);
     g.water[g.index(4, 3)] = 3f;
