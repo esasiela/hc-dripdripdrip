@@ -8,12 +8,12 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 - Story prompts live in `docs/prompts/`, named `M<theme>.<seq>-<slug>.md` with two-digit numbers assigned by hand so they sort in order (for example `M02.01-static-water-rendering.md`). Branches stay descriptive (`feat/static-water-rendering`). Earlier prompts (M0 to M1.4) use an older numbering and are left as they are. A prompt that isn't next in line yet may stay unnumbered until its order is settled. Stories without a prompt yet are kept short here and expanded when they come up.
 
 ## Next (flow)
-1. **M02.04 Flow tick v1** (`prompts/M02.04-flow-tick-v1.md`). V1 flow algorithm in `sim` only: double-buffered flow with FLOW_RATE, MAX_OUTFLOW, MIN_FLOW, no-inversion cap, 8-neighbor table. One in-code test map (flat, one wet tile) with headless tests for conservation, non-negativity, void blocking, determinism, spread, no-inversion, still water, and MIN_FLOW threshold.
+1. **M02.04 Flow tick v1** (`prompts/M02.04-flow-tick-v1.md`). Flow algorithm in `sim` only: double-buffered, 4-neighbor table, `MAX_OUTFLOW` (water/sec) and `MIN_DIFFERENTIAL`, leveling cap so tile pairs settle instead of ping-ponging. One in-code test map (flat, one wet tile) plus small in-code maps, with headless tests for conservation, non-negativity, void blocking, determinism, symmetry, spread, two-tile leveling, speed limit, droplet draining, cohesion, and basin settling.
 2. **Flow scenario tests.** A few more in-code test maps verifying specific behaviors: stable bowl stays stable, uniform-surface-with-one-spike settles, water flows down a valley and stops. Each its own small story or batched if small enough.
 3. **Flow GUI wiring.** Wire the flow tick into the game loop so water moves on screen. Fixed timestep, pause and single-step controls.
 4. **Speed controls** (1x/2x/4x).
 5. **Sim ms per tick in the inspector.**
-6. **Settings: 4-neighbor vs 8-neighbor switch.**
+6. **8-neighbor option.** Add the diagonal neighbors (weight 0.707) to the neighbor table, plus a settings switch between 4 and 8 neighbors.
 
 ## Next (scenario maps, after basic flow works)
 - **Flow scenario maps** (`prompts/flow-scenario-maps.md`). Tiny JSON maps with documented expected equilibria, plus `docs/scenarios.md` and a test that keeps map and doc in agreement. Revisit and possibly split this prompt once the flow algorithm is proven.

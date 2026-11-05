@@ -2,7 +2,7 @@
 
 A hobby top-down sim/game. The map is a grid of tiles; each tile has an integer land height and a float water depth. Water flows over the terrain. The player reshapes the land (terraforming) to steer the water. No victory conditions, no combat. The fun is in making water go where you want. Inspired by Creeper World 3, without the combat.
 
-The simulation is not a physics engine. It aims for game-feel: water that looks and behaves in a satisfying, predictable way. Real fluid dynamics (momentum, pressure, compressibility) are non-goals. Water has no momentum — it flows toward lower surfaces and stops when it gets there, with no overshoot, water hammer, or oscillation.
+The simulation is not a physics engine. It aims for game-feel: water that looks and behaves in a satisfying, predictable way. Real fluid dynamics (momentum, pressure, compressibility) are non-goals. Water has no momentum — it flows toward lower surfaces and stops when it gets there, with no water hammer or sloshing back and forth. The goal is water that is fun to watch and looks plausible, and cheap to compute.
 
 ## Scope and non-goals
 - In scope: terrain, water flow, fixed water sources, drains, discrete terraforming, simple top-down rendering, hand-authored maps.
@@ -72,40 +72,49 @@ Each tick is an ordered list of passes over the world, so new mechanics (and eve
 3. Drains remove water.
 4. (Later) erosion.
 
-Fixed timestep, decoupled from render framerate (accumulator in the game loop). Sim speed is a multiplier on ticks per second; pause and single-step are first-class.
+Fixed timestep of 1/60 s (`TICKS_PER_SECOND = 60`), decoupled from render framerate (accumulator in the game loop). Sim speed is how many ticks run per second of real time (2x runs two ticks per frame); the tick itself never changes size, so tuning and stability do not depend on speed. Pause and single-step are first-class. Rates in the design are written in water per second and converted to per-tick amounts once, by dividing by `TICKS_PER_SECOND`.
 
-### Flow (v1 algorithm)
+### Flow
 Brute force over the whole grid with a double buffer: read from the current `water` array, write into `next`, then swap. Never read values written during the same tick. "Downhill" always means by surface height (`land + water`), not land height alone.
 
 The flow logic lives in its own class so the algorithm can be swapped later without touching the tick pipeline or the rest of the sim.
 
 **Constants:**
-- **`FLOW_RATE`** — fraction of each surface differential that moves per tick. Controls how fast water flows: steeper drops move more water. Starting value: **0.25**.
-- **`MAX_OUTFLOW`** — the most water (in absolute units) that can leave a single tile in one tick, regardless of differentials. Prevents a tile from dumping all its water at once. Starting value: **1.0**.
-- **`MIN_FLOW`** — smallest transfer that actually happens. Any computed flow below this is dropped to zero. This acts as surface tension / cohesion: a small puddle on flat land stops spreading when the differential to its neighbors falls below this threshold. Starting value: **0.001**.
+- **`MAX_OUTFLOW`** — the most water a single tile can send out, in water per second. Per tick that is `MAX_OUTFLOW / TICKS_PER_SECOND`. It sets how fast water moves. Starting value: **1.0** water/sec. Example: two adjacent tiles with a surface differential of 2 level out in roughly 60 ticks (one second), because leveling moves 1.0 unit.
+- **`MIN_DIFFERENTIAL`** — the smallest surface difference that makes water move. This is a depth, not a rate, so it is not scaled by tick rate or speed. It acts as surface tension and cohesion: a small puddle on flat land stops spreading once its surface is within this much of its neighbors, and a droplet shallower than this on flat ground stays put. Higher values keep puddles compact; lower values let water spread thin. Starting value: **0.1** (tunable).
 
-**Per-tile flow steps:**
+Both are configurable on the flow class (constructor parameters with these defaults) so tests can use other values.
 
-For each non-void tile `i` with `water[i] > 0`:
-1. Compute `surface_i = land[i] + water[i]`.
-2. For each neighbor `j` in the neighbor table that is non-void and has `surface_j < surface_i`, compute `want_j = FLOW_RATE * weight_j * (surface_i - surface_j)`.
-3. Drop any `want_j < MIN_FLOW` to zero.
-4. Compute `total = sum(want_j)`. If `total > MAX_OUTFLOW`, scale all `want_j` down proportionally so the total equals `MAX_OUTFLOW`.
-5. **No-inversion cap:** compute `floor = max(surface_j)` across all receiving neighbors. The source tile's resulting surface must not drop below this floor. `max_give = water[i] - max(0, floor - land[i])`. If `total > max_give`, scale all `want_j` down proportionally so the total equals `max_give`. (This also prevents water from going negative.)
-6. Apply: `next[i] -= want_j; next[j] += want_j` for each remaining neighbor.
+**Per-tick algorithm:**
+
+For each non-void tile `src` with `water[src] > 0`:
+1. `surface_src = land[src] + water[src]`.
+2. For each neighbor `nb` in the neighbor table that is inside the map and non-void: `diff = surface_src - surface_nb`. If `diff >= MIN_DIFFERENTIAL`, `nb` is a **wanting neighbor**; remember its `diff` and add it to `total_diff`.
+3. If there are no wanting neighbors, move on.
+4. Let `n` be the number of wanting neighbors. The amount `src` sends this tick is
+   `flow = min(total_diff / (n + 1), water[src], MAX_OUTFLOW / TICKS_PER_SECOND)`.
+   The first term is the amount that would level `src` with `n` equally low neighbors. It is what stops two tiles from swapping heights and ping-ponging forever. The second term keeps water non-negative, and the third is the speed limit.
+5. Split `flow` among the wanting neighbors in proportion to `weight * diff` (all weights are 1.0 with the 4-neighbor table). Subtract `flow` from `next[src]` once and add each neighbor's share to its `next[nb]`.
+
+Because every tile reads only the current buffer and a tile never sends more than it holds, mass is conserved and water cannot go negative regardless of the order tiles are visited.
 
 **No momentum.** There is no velocity or direction memory between ticks. Each tick looks only at current surface heights. Water hitting a wall simply has nowhere to go and stops.
 
-**Neighbor table:** a list of `(dx, dy, weight)`. Default is 8 neighbors, orthogonal weight 1.0, diagonal weight approximately 0.707 (1/√2). A config switch selects the 4-neighbor table (later story). Comparing the two is a config change, not a code change.
+**Known quirks (accepted):**
+- When two source tiles push into a common neighbor in the same tick, the neighbor can end slightly above the level it would settle at, then send a little back. These wobbles are small and die out.
+- With unequal neighbors, a tile can end a hair below its higher wanting neighbor after a tick. The next tick corrects it.
+- A film of water shallower than `MIN_DIFFERENTIAL` on tiles with equal-height neighbors stays put. That is the intended cohesion.
 
-**Corner leaking:** two walls touching only at a diagonal leave a gap water can squeeze through. Accepted in v1; revisit if it looks bad.
+**Neighbor table:** a list of `(dx, dy, weight)`. The first implementation uses the 4 orthogonal neighbors, all weight 1.0. Later, an 8-neighbor table adds the diagonals with weight approximately 0.707 (1/√2), which makes spread look round instead of square. Comparing the two is a config change, not a code change.
+
+**Corner leaking** (8-neighbor only): two walls touching only at a diagonal leave a gap water can squeeze through. Accept it when diagonals arrive; revisit if it looks bad.
 
 ### Invariants (must be tests)
 - **Mass conservation:** total water is unchanged by a flow tick (within float tolerance). It only changes via sources and drains.
 - Water is never negative; void tiles never hold water.
 - Determinism: same input produces identical output.
-- No inversion: a tile's surface after outflow is never lower than any neighbor it sent water to.
-- Equilibrium: water in a closed basin settles to a level surface within MIN_FLOW tolerance.
+- Two-tile leveling: with one wanting neighbor and no speed limit in the way, a tile sends exactly half the differential, so the pair ends level and does not swap order.
+- Settling: water in a closed basin reaches a state where no water moves, with every pair of adjacent tiles within `MIN_DIFFERENTIAL` of level surface.
 - Symmetry: a symmetric map and initial state stays symmetric (catches update-order bias).
 
 ### Performance
