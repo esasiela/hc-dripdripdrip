@@ -19,11 +19,11 @@ Make the screen easy to read before adding water.
 
 ## Then: flow
 Pre-existing water flows predictably.
-- `World` tick in `sim` with a pass pipeline, double-buffered flow, neighbor table (8 default, 4 switchable).
+- `World` tick in `sim` with a pass pipeline, double-buffered flow, neighbor table (4 first, 8 added later and switchable).
 - Fixed-timestep loop in `core`; pause, single-step, speed controls.
 - Water changing over time on screen; sim ms per tick in the HUD.
 - Tests: mass conservation, non-negativity, void blocking, determinism, symmetry, equilibrium in a closed basin.
-  Acceptance: all invariants pass; scenario maps behave as documented; no visible oscillation.
+  Acceptance: all invariants pass; scenario maps behave as documented; no visible sustained oscillation.
 
 ## Then: sources and drains
 - Map format fills in `sources` and `drains` (x, y, rate); source and drain passes in the tick pipeline; markers on screen.
