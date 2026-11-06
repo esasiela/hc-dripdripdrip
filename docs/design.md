@@ -145,12 +145,18 @@ An overlay drawn on the map, positioned relative to the hovered tile (not the mo
 - Pan (drag or WASD) and zoom (scroll), with clamping.
 - F1 opens the settings panel (Scene2D, mouse-operable, not persisted). Options live in `ViewSettings`; the panel swallows clicks and scrolls so the camera ignores them.
 - Min zoom: whole map fits on screen. Max zoom: about 64 px per tile. Pan clamps to the map edge.
-- With the flow stories: pause, single-step, speed (1x/2x/4x...), debug toggles.
+- With the flow stories: `.` runs one tick, `R` resets the map to its starting state, Space plays and pauses, then speed (1x/2x/4x...) and debug toggles. See the help overlay (`?`) for what is built.
 
 ## Terraforming
 - Discrete and all-or-nothing: a chunk is removed or placed whole. The action takes time; if interrupted before completing, nothing happens. The sim applies the change only on completion.
 - Land is conserved: removing a chunk takes height 1 from a tile; placing adds 1. Heights are clamped to `1..7`. Void tiles can't be touched.
 - Starts as a point-and-click "god mode shovel", then grows (a terraformer unit, carried soil, multiple chunk sizes).
+
+## Map authoring (planned)
+A freeform **authoring mode** for building scenario maps, separate from gameplay.
+- Tools set a *proposal*: a proposed land level for each tile, shown as pending and not yet in the sim. In authoring mode only, tools also set a tile's initial water depth.
+- A **Commit** button applies the proposal instantly; Discard drops it. In gameplay the same kind of proposal is carried out over time under constraints (see Terraforming), so the proposal is the shared data and commit is one way to execute it.
+- **Saving:** a map has a Map Name (`meta.name`) that the player sees and thinks in; the filename is independent of it, and the save dialog proposes a kebab-case filename from the name. Saved maps go to a user folder (dynamic data); the bundled `assets/maps/` hold the static maps that change through PRs. The catalog lists both. Saving over an existing file needs a safeguard (prompt or auto-increment, to be decided).
 
 ## Open questions
 - Placing land on a tile that holds water: push the water to neighbors, or block the placement?
