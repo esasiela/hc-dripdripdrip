@@ -8,8 +8,9 @@ import com.hedgecourt.drip.sim.Grid;
 import java.util.Locale;
 
 /**
- * The tile-attached HUD: a colored {@code land + water = surface} label above the hovered tile. The
- * label has a fixed screen size and is clamped to the visible part of the map.
+ * The tile-attached HUD above the hovered tile: a status line ({@code Tick: N Water total: X.XX})
+ * over a colored {@code land + water = surface} line. The label has a fixed screen size and is
+ * clamped to the visible part of the map.
  */
 final class TileHud {
   /** Gap in pixels between the tile's top edge and the label. */
@@ -17,6 +18,9 @@ final class TileHud {
 
   /** Minimum distance in pixels between the label and the edge of the visible map. */
   static final float EDGE_PADDING = 6f;
+
+  /** Vertical gap in pixels between the two lines. */
+  private static final float LINE_GAP = 4f;
 
   private static final Color LAND = new Color(0.35f, 0.9f, 0.35f, 1f);
   private static final Color WATER = new Color(0.35f, 0.65f, 1f, 1f);
@@ -37,6 +41,11 @@ final class TileHud {
       String.format(Locale.ROOT, "%.2f", water),
       String.format(Locale.ROOT, "%.2f", g.land[index] + water)
     };
+  }
+
+  /** The first HUD line: the tick count and the total water. */
+  static String statusLine(int tick, float totalWater) {
+    return "Tick: " + tick + String.format(Locale.ROOT, "   Water total: %.2f", totalWater);
   }
 
   /**
@@ -60,13 +69,18 @@ final class TileHud {
     return new float[] {x, y};
   }
 
-  /** Draws the label for tile {@code index}, if it is not void. Batch uses a screen projection. */
+  /**
+   * Draws the label for tile {@code index}, if it is not void. Batch uses a screen projection. Both
+   * lines are centered on the same x.
+   */
   void draw(
       SpriteBatch batch,
       BitmapFont font,
       Grid g,
       MapCamera camera,
       int index,
+      int tick,
+      float totalWater,
       float viewWidth,
       float viewHeight) {
     String[] p = parts(g, index);
@@ -82,7 +96,12 @@ final class TileHud {
       widths[i] = layout.width;
       total += widths[i];
     }
-    float height = font.getCapHeight();
+    String status = statusLine(tick, totalWater);
+    layout.setText(font, status);
+    float statusWidth = layout.width;
+    float lineHeight = font.getCapHeight();
+    float height = 2 * lineHeight + LINE_GAP;
+    float width = Math.max(total, statusWidth);
 
     int tx = index % g.width;
     int ty = index / g.width;
@@ -91,7 +110,7 @@ final class TileHud {
             camera.screenX(tx),
             camera.screenY(ty),
             camera.screenX(tx + 1),
-            total,
+            width,
             height,
             Math.max(0f, camera.screenX(0)) + EDGE_PADDING,
             Math.max(0f, camera.screenY(0)) + EDGE_PADDING,
@@ -100,14 +119,21 @@ final class TileHud {
 
     // Screen y is down; BitmapFont.draw takes the GL y (up) of the top of the text.
     float top = viewHeight - pos[1];
-    float x = Math.round(pos[0]);
+    drawShadowed(batch, font, status, SURFACE, Math.round(pos[0] + (width - statusWidth) / 2), top);
+    top -= lineHeight + LINE_GAP;
+    float x = Math.round(pos[0] + (width - total) / 2);
     for (int i = 0; i < texts.length; i++) {
-      font.setColor(SHADOW);
-      font.draw(batch, texts[i], x + 1, top - 1);
-      font.setColor(colors[i]);
-      font.draw(batch, texts[i], x, top);
+      drawShadowed(batch, font, texts[i], colors[i], x, top);
       x += widths[i];
     }
+  }
+
+  private static void drawShadowed(
+      SpriteBatch batch, BitmapFont font, String text, Color color, float x, float top) {
+    font.setColor(SHADOW);
+    font.draw(batch, text, x + 1, top - 1);
+    font.setColor(color);
+    font.draw(batch, text, x, top);
     font.setColor(Color.WHITE);
   }
 }

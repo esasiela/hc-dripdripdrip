@@ -167,7 +167,8 @@ public class DripMain extends ApplicationAdapter {
         || helpOverlay.isOver(x, y)) {
       return;
     }
-    tileHud.draw(batch, font, map.grid(), camera, index, Gdx.graphics.getWidth(), vh);
+    tileHud.draw(
+        batch, font, map.grid(), camera, index, tickCount, waterTotal, Gdx.graphics.getWidth(), vh);
   }
 
   /** Grid index of the map tile under the mouse cursor, or -1 if the cursor is off the map. */
