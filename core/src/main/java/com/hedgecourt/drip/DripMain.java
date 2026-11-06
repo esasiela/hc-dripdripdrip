@@ -207,7 +207,9 @@ public class DripMain extends ApplicationAdapter {
     helpOverlay.dispose();
   }
 
-  /** Mouse drag pans, scroll zooms, N/P switch maps, . steps flow, R resets, ? toggles help. */
+  /**
+   * Mouse drag pans, scroll zooms, M / Shift+M switch maps, . steps flow, R resets, ? toggles help.
+   */
   private class Controls extends InputAdapter {
     private int lastX;
     private int lastY;
@@ -262,12 +264,11 @@ public class DripMain extends ApplicationAdapter {
         settingsPanel.toggle();
         return true;
       }
-      if (keycode == Input.Keys.N) {
-        loadMap(mapIndex + 1);
-        return true;
-      }
-      if (keycode == Input.Keys.P) {
-        loadMap(mapIndex - 1);
+      if (keycode == Input.Keys.M) {
+        boolean shift =
+            Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+                || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+        loadMap(mapIndex + (shift ? -1 : 1));
         return true;
       }
       if (keycode == Input.Keys.PERIOD) {

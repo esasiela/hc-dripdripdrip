@@ -15,7 +15,7 @@ public final class HelpMappings {
           new Entry("W A S D / Arrows", "Pan the map"),
           new Entry("Mouse drag", "Pan the map"),
           new Entry("Scroll wheel", "Zoom at the cursor"),
-          new Entry("N / P", "Next / previous map"),
+          new Entry("M / Shift+M", "Next / previous map"),
           new Entry(".", "Run one flow tick"),
           new Entry("R", "Reset the map"),
           new Entry("F1", "Toggle settings panel"),

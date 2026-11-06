@@ -145,7 +145,7 @@ An overlay drawn on the map, positioned relative to the hovered tile (not the mo
 - Pan (drag or WASD) and zoom (scroll), with clamping.
 - F1 opens the settings panel (Scene2D, mouse-operable, not persisted). Options live in `ViewSettings`; the panel swallows clicks and scrolls so the camera ignores them.
 - Min zoom: whole map fits on screen. Max zoom: about 64 px per tile. Pan clamps to the map edge.
-- `.` runs exactly one flow tick (no key repeat). `R` reloads the current map's starting state and sets the tick count to zero; the camera is not moved. `N`/`P` also start the new map at tick zero. The inspector shows `Tick` and `Water total`, recomputed when a tick runs or the map loads or resets. Still to come: Space plays and pauses, then speed (1x/2x/4x...) and debug toggles. See the help overlay (`?`) for what is built.
+- `.` runs exactly one flow tick (no key repeat). `R` reloads the current map's starting state and sets the tick count to zero; the camera is not moved. `M` / `Shift+M` (next / previous map) also start the new map at tick zero. The inspector shows `Tick` and `Water total`, recomputed when a tick runs or the map loads or resets. Still to come: Space plays and pauses, then speed (1x/2x/4x...) and debug toggles. See the help overlay (`?`) for what is built.
 
 ## Terraforming
 - Discrete and all-or-nothing: a chunk is removed or placed whole. The action takes time; if interrupted before completing, nothing happens. The sim applies the change only on completion.
