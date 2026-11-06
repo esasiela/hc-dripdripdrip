@@ -6,15 +6,22 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 - Order within a section is priority. The top item of the first Next section is the likely next story.
 - When a story is merged, it moves to Done by name (no PR number; `git log` has it) in the same PR that delivers it. Planning changes (new stories, reordering) go in their own small docs PR.
 - Story prompts live in `docs/prompts/`, named `M<theme>.<seq>-<slug>.md` with two-digit numbers assigned by hand so they sort in order (for example `M02.01-static-water-rendering.md`). Branches stay descriptive (`feat/static-water-rendering`). Earlier prompts (M0 to M1.4) use an older numbering and are left as they are. A prompt that isn't next in line yet may stay unnumbered until its order is settled. Stories without a prompt yet are kept short here and expanded when they come up.
+- **Experiment:** M02.05 lives in GitHub issue #20 instead of a prompt file in `docs/prompts/`. Everything else is unchanged: its PR says `Closes #20` and still moves the story to Done here. We decide at a retro whether more stories move to issues.
 
 ## Next (flow)
-2. **Flow scenario tests.** A few more in-code test maps verifying specific behaviors: stable bowl stays stable, uniform-surface-with-one-spike settles, water flows down a valley and stops. Each its own small story or batched if small enough.
-3. **Flow GUI wiring.** Wire the flow tick into the game loop so water moves on screen. Fixed timestep, pause and single-step controls.
-4. **Speed controls** (1x/2x/4x).
+1. **M02.05 Manual flow step and reset** (GitHub issue #20). `.` runs one flow tick, `R` reloads the map's starting state, and the inspector shows the tick count and total water. Update the `?` help overlay.
+2. **M02.06 Play/pause at 1x.** Space toggles play and pause. A fixed-timestep accumulator in the game loop runs `Flow.tick` at 60 ticks per second, decoupled from the render rate; single-step still works while paused. Update the `?` help overlay.
+3. **Speed controls** (1x/2x/4x). Speed means more ticks per frame, never a bigger step (see "Tick pipeline" in `docs/design.md`). Update the `?` help overlay.
+4. **Flow scenario tests.** A few more in-code test maps verifying specific behaviors: stable bowl stays stable, uniform-surface-with-one-spike settles, water flows down a valley and stops. Each its own small story or batched if small enough.
 5. **Sim ms per tick in the inspector.**
-6. **8-neighbor option.** Add the diagonal neighbors (weight 0.707) to the neighbor table, plus a settings switch between 4 and 8 neighbors.
+6. **8-neighbor option.** Add the diagonal neighbors (weight 0.707) to the neighbor table, plus a settings switch between 4 and 8 neighbors. Update the `?` help overlay if a key is added.
 
-## Next (scenario maps, after basic flow works)
+## Next (map authoring)
+Rough stories, to be refined when they come up. The point: build scenario maps in the game, keep them, and re-run them against the flow.
+- **Map saving.** A map writer in `sim` (with a round-trip test against `MapLoader`) and a save action in the game. Saved maps go to a user folder (dynamic data); the catalog lists that folder plus the bundled `assets/maps/` (static data that changes through PRs; a good scenario gets copied there in a normal PR). A map has a Map Name (`meta.name`) that is independent of its filename; the save dialog proposes a kebab-case filename from the name. Saving must do something smart before overwriting an existing file (prompt, or auto-increment; decide when the story comes up). Likely two stories: the writer, then the save UI. Update the `?` help overlay.
+- **Edit mode (map authoring).** A freeform authoring mode, separate from gameplay. Tools paint a proposed land level per tile (shown as a pending overlay, not yet applied), and, in edit mode only, an initial water depth per tile. A Commit button applies the proposal instantly; Discard drops it. In gameplay the same kind of proposal will later be carried out over time under constraints (see "Map authoring" in `docs/design.md`). Probably three or four stories: edit mode toggle, land painting with the pending overlay, commit and discard, water painting. Update the `?` help overlay for each new key.
+
+## Next (scenario maps, after basic flow works and map authoring)
 - **Flow scenario maps** (`prompts/flow-scenario-maps.md`). Tiny JSON maps with documented expected equilibria, plus `docs/scenarios.md` and a test that keeps map and doc in agreement. Revisit and possibly split this prompt once the flow algorithm is proven.
 
 ## Next (more viewing aids, lower priority)
@@ -32,7 +39,7 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 - Upload the HTML test report as a CI artifact, or publish a test summary on the PR.
 - A single table of key bindings that both the input handling and the help overlay read from, so they can't drift apart. Revisit when the help overlay grows into a tabbed overlay.
 - Cap on how far the camera can zoom out (for example a 10 px/tile floor). Today the minimum zoom is "whole map fits on screen", so a hard floor would stop large maps being seen whole in a small window. The grid already hides below 4 px/tile. Decide after living with it.
-- GitHub Issues or Projects as the story tracker, if this file gets unwieldy. It would give stories real IDs, and PRs could say "Closes #n". Plan: try it with one story after a couple more file-based ones (stories M02.01 onward), then decide at a retro. Hand-numbered prompt files are fine until the two-digit numbers run out.
+- GitHub Issues or Projects as the story tracker: being tried with M02.05 (issue #20), see the Experiment note at the top. Open ideas: a local script that pulls issues into files for the assistant to read; migrating the rest of this file in one go if the experiment works.
 - HUD donut layout and polish (see HUD vision in `docs/design.md`).
 
 ## Done
