@@ -10,6 +10,20 @@ class InspectorTextTest {
   private final Grid grid = new Grid(3, 2);
 
   @Test
+  void totalWaterSumsAllTiles() {
+    grid.land[0] = 2;
+    grid.water[0] = 0.5f;
+    grid.land[1] = 1;
+    grid.water[1] = 1.0f;
+    assertEquals(1.5f, InspectorText.totalWater(grid), 1e-6f);
+  }
+
+  @Test
+  void globalLinesShowTickAndTwoDecimalTotal() {
+    assertEquals(List.of("Tick: 3", "Water total: 1.50"), InspectorText.globalLines(3, 1.5f));
+  }
+
+  @Test
   void offMapShowsDashes() {
     assertEquals(
         List.of("Tile: -", "Land:       -", "Water:     -", "Surface:  -"),

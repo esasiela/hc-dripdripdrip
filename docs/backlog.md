@@ -9,12 +9,11 @@ A story is one feature or change delivered as **one small PR**: a one-line goal 
 - **Experiment:** M02.05 lives in GitHub issue #20 instead of a prompt file in `docs/prompts/`. Everything else is unchanged: its PR says `Closes #20` and still moves the story to Done here. We decide at a retro whether more stories move to issues.
 
 ## Next (flow)
-1. **M02.05 Manual flow step and reset** (GitHub issue #20). `.` runs one flow tick, `R` reloads the map's starting state, and the inspector shows the tick count and total water. Update the `?` help overlay.
-2. **M02.06 Play/pause at 1x.** Space toggles play and pause. A fixed-timestep accumulator in the game loop runs `Flow.tick` at 60 ticks per second, decoupled from the render rate; single-step still works while paused. Update the `?` help overlay.
-3. **Speed controls** (1x/2x/4x). Speed means more ticks per frame, never a bigger step (see "Tick pipeline" in `docs/design.md`). Update the `?` help overlay.
-4. **Flow scenario tests.** A few more in-code test maps verifying specific behaviors: stable bowl stays stable, uniform-surface-with-one-spike settles, water flows down a valley and stops. Each its own small story or batched if small enough.
-5. **Sim ms per tick in the inspector.**
-6. **8-neighbor option.** Add the diagonal neighbors (weight 0.707) to the neighbor table, plus a settings switch between 4 and 8 neighbors. Update the `?` help overlay if a key is added.
+1. **M02.06 Play/pause at 1x.** Space toggles play and pause. A fixed-timestep accumulator in the game loop runs `Flow.tick` at 60 ticks per second, decoupled from the render rate; single-step still works while paused. Update the `?` help overlay.
+2. **Speed controls** (1x/2x/4x). Speed means more ticks per frame, never a bigger step (see "Tick pipeline" in `docs/design.md`). Update the `?` help overlay.
+3. **Flow scenario tests.** A few more in-code test maps verifying specific behaviors: stable bowl stays stable, uniform-surface-with-one-spike settles, water flows down a valley and stops. Each its own small story or batched if small enough.
+4. **Sim ms per tick in the inspector.**
+5. **8-neighbor option.** Add the diagonal neighbors (weight 0.707) to the neighbor table, plus a settings switch between 4 and 8 neighbors. Update the `?` help overlay if a key is added.
 
 ## Next (map authoring)
 Rough stories, to be refined when they come up. The point: build scenario maps in the game, keep them, and re-run them against the flow.
@@ -56,3 +55,4 @@ Rough stories, to be refined when they come up. The point: build scenario maps i
 - M02.02 Inspector panel (renamed from HUD, title line, water depth and surface in per-tile readout)
 - M02.03 Tile HUD MVP (colored land + water = surface label near hovered tile, clamped to map area)
 - M02.04 Flow tick v1 (`Flow` class in `sim`: double-buffered 4-neighbor flow, `MAX_OUTFLOW`, `MIN_DIFFERENTIAL`, headless invariant and behavior tests)
+- M02.05 Manual flow step and reset (`.` runs one `Flow.tick`, `R` reloads the map's starting state, inspector shows tick count and total water)

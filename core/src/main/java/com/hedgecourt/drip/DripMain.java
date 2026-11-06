@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.hedgecourt.drip.sim.Flow;
 import com.hedgecourt.drip.sim.Grid;
 import com.hedgecourt.drip.sim.MapData;
 import java.util.ArrayList;
@@ -36,6 +37,9 @@ public class DripMain extends ApplicationAdapter {
   private String mapKey = "";
   private MapData map;
   private Tileset tileset;
+  private final Flow flow = new Flow();
+  private int tickCount;
+  private float waterTotal;
 
   /** Creates the game, optionally starting on the named map (null for the first one). */
   public DripMain(String startMap) {
@@ -70,7 +74,26 @@ public class DripMain extends ApplicationAdapter {
     map = catalog.load(mapKey);
     tileset = Tilesets.byName(map.tileset());
     camera.setMap(map.grid().width, map.grid().height);
+    resetCounters();
     Gdx.app.log("Drip", "Loaded map " + mapKey);
+  }
+
+  /** Reloads the current map's starting state. The camera is left alone. */
+  private void resetMap() {
+    map = catalog.load(mapKey);
+    resetCounters();
+    Gdx.app.log("Drip", "Reset map " + mapKey);
+  }
+
+  private void resetCounters() {
+    tickCount = 0;
+    waterTotal = InspectorText.totalWater(map.grid());
+  }
+
+  private void stepFlow() {
+    flow.tick(map.grid());
+    tickCount++;
+    waterTotal = InspectorText.totalWater(map.grid());
   }
 
   @Override
@@ -144,7 +167,8 @@ public class DripMain extends ApplicationAdapter {
         || helpOverlay.isOver(x, y)) {
       return;
     }
-    tileHud.draw(batch, font, map.grid(), camera, index, Gdx.graphics.getWidth(), vh);
+    tileHud.draw(
+        batch, font, map.grid(), camera, index, tickCount, waterTotal, Gdx.graphics.getWidth(), vh);
   }
 
   /** Grid index of the map tile under the mouse cursor, or -1 if the cursor is off the map. */
@@ -161,6 +185,7 @@ public class DripMain extends ApplicationAdapter {
     lines.add("FPS: " + Gdx.graphics.getFramesPerSecond());
     lines.add("Map: " + map.name() + " [" + mapKey + "] " + g.width + "x" + g.height);
     lines.add(String.format("Zoom: %.1f px/tile", camera.pixelsPerTile()));
+    lines.addAll(InspectorText.globalLines(tickCount, waterTotal));
     lines.addAll(InspectorText.tileLines(g, tileUnderCursor()));
     lines.add("F1: settings   ? help");
 
@@ -182,7 +207,9 @@ public class DripMain extends ApplicationAdapter {
     helpOverlay.dispose();
   }
 
-  /** Mouse drag pans, scroll zooms, N/P switch maps, ? toggles help. */
+  /**
+   * Mouse drag pans, scroll zooms, M / Shift+M switch maps, . steps flow, R resets, ? toggles help.
+   */
   private class Controls extends InputAdapter {
     private int lastX;
     private int lastY;
@@ -237,12 +264,19 @@ public class DripMain extends ApplicationAdapter {
         settingsPanel.toggle();
         return true;
       }
-      if (keycode == Input.Keys.N) {
-        loadMap(mapIndex + 1);
+      if (keycode == Input.Keys.M) {
+        boolean shift =
+            Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+                || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+        loadMap(mapIndex + (shift ? -1 : 1));
         return true;
       }
-      if (keycode == Input.Keys.P) {
-        loadMap(mapIndex - 1);
+      if (keycode == Input.Keys.PERIOD) {
+        stepFlow();
+        return true;
+      }
+      if (keycode == Input.Keys.R) {
+        resetMap();
         return true;
       }
       return false;

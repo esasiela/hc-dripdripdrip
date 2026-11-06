@@ -8,6 +8,20 @@ import java.util.Locale;
 final class InspectorText {
   private InspectorText() {}
 
+  /** Sum of water over all tiles. */
+  static float totalWater(Grid g) {
+    double sum = 0;
+    for (float w : g.water) {
+      sum += w;
+    }
+    return (float) sum;
+  }
+
+  /** The global lines: ticks run since the map was loaded or reset, and total water. */
+  static List<String> globalLines(int tick, float totalWater) {
+    return List.of("Tick: " + tick, String.format(Locale.ROOT, "Water total: %.2f", totalWater));
+  }
+
   /** Always four lines for the tile at {@code index}; "-" stands in for data that doesn't exist. */
   static List<String> tileLines(Grid g, int index) {
     if (index < 0) {

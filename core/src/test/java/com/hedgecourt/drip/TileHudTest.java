@@ -28,6 +28,11 @@ class TileHudTest {
   }
 
   @Test
+  void statusLineShowsTickAndTwoDecimalTotal() {
+    assertEquals("Tick: 7   Water total: 12.50", TileHud.statusLine(7, 12.5f));
+  }
+
+  @Test
   void voidAndOutOfRangeShowNothing() {
     assertNull(TileHud.parts(grid(), 2));
     assertNull(TileHud.parts(grid(), -1));
