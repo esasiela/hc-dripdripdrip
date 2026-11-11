@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.hedgecourt.drip.sim.Flow;
 import com.hedgecourt.drip.sim.Grid;
 import com.hedgecourt.drip.sim.MapData;
+import com.hedgecourt.drip.sim.TickClock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class DripMain extends ApplicationAdapter {
   private MapData map;
   private Tileset tileset;
   private final Flow flow = new Flow();
+  private final TickClock clock = new TickClock(Flow.TICKS_PER_SECOND, TickClock.MAX_FRAME_SECONDS);
   private int tickCount;
   private float waterTotal;
 
@@ -86,13 +88,19 @@ public class DripMain extends ApplicationAdapter {
   }
 
   private void resetCounters() {
+    clock.reset();
     tickCount = 0;
     waterTotal = InspectorText.totalWater(map.grid());
   }
 
-  private void stepFlow() {
-    flow.tick(map.grid());
-    tickCount++;
+  private void runTicks(int ticks) {
+    if (ticks <= 0) {
+      return;
+    }
+    for (int i = 0; i < ticks; i++) {
+      flow.tick(map.grid());
+    }
+    tickCount += ticks;
     waterTotal = InspectorText.totalWater(map.grid());
   }
 
@@ -107,6 +115,7 @@ public class DripMain extends ApplicationAdapter {
   @Override
   public void render() {
     pollKeys(Gdx.graphics.getDeltaTime());
+    runTicks(clock.advance(Gdx.graphics.getDeltaTime()));
     float vh = Gdx.graphics.getHeight();
     projection.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), vh);
 
@@ -185,7 +194,7 @@ public class DripMain extends ApplicationAdapter {
     lines.add("FPS: " + Gdx.graphics.getFramesPerSecond());
     lines.add("Map: " + map.name() + " [" + mapKey + "] " + g.width + "x" + g.height);
     lines.add(String.format("Zoom: %.1f px/tile", camera.pixelsPerTile()));
-    lines.addAll(InspectorText.globalLines(tickCount, waterTotal));
+    lines.addAll(InspectorText.globalLines(tickCount, waterTotal, clock.isPlaying()));
     lines.addAll(InspectorText.tileLines(g, tileUnderCursor()));
     lines.add("F1: settings   ? help");
 
@@ -208,7 +217,8 @@ public class DripMain extends ApplicationAdapter {
   }
 
   /**
-   * Mouse drag pans, scroll zooms, M / Shift+M switch maps, . steps flow, R resets, ? toggles help.
+   * Mouse drag pans, scroll zooms, M / Shift+M switch maps, Space plays and pauses, . steps flow
+   * while paused, R resets, ? toggles help.
    */
   private class Controls extends InputAdapter {
     private int lastX;
@@ -271,8 +281,14 @@ public class DripMain extends ApplicationAdapter {
         loadMap(mapIndex + (shift ? -1 : 1));
         return true;
       }
+      if (keycode == Input.Keys.SPACE) {
+        clock.toggle();
+        return true;
+      }
       if (keycode == Input.Keys.PERIOD) {
-        stepFlow();
+        if (!clock.isPlaying()) {
+          runTicks(1);
+        }
         return true;
       }
       if (keycode == Input.Keys.R) {

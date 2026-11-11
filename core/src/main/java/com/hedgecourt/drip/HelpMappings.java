@@ -16,7 +16,8 @@ public final class HelpMappings {
           new Entry("Mouse drag", "Pan the map"),
           new Entry("Scroll wheel", "Zoom at the cursor"),
           new Entry("M / Shift+M", "Next / previous map"),
-          new Entry(".", "Run one flow tick"),
+          new Entry("Space", "Play / pause the flow"),
+          new Entry(".", "Run one flow tick (while paused)"),
           new Entry("R", "Reset the map"),
           new Entry("F1", "Toggle settings panel"),
           new Entry("?", "Toggle this help"));

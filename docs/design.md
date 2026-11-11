@@ -72,7 +72,7 @@ Each tick is an ordered list of passes over the world, so new mechanics (and eve
 3. Drains remove water.
 4. (Later) erosion.
 
-Fixed timestep of 1/60 s (`TICKS_PER_SECOND = 60`), decoupled from render framerate (accumulator in the game loop). Sim speed is how many ticks run per second of real time (2x runs two ticks per frame); the tick itself never changes size, so tuning and stability do not depend on speed. Pause and single-step are first-class. Rates in the design are written in water per second and converted to per-tick amounts once, by dividing by `TICKS_PER_SECOND`.
+Fixed timestep of 1/60 s (`TICKS_PER_SECOND = 60`), decoupled from render framerate (accumulator in the game loop: `sim.TickClock`, which has no libGDX dependency and is unit tested). Sim speed is how many ticks run per second of real time (2x runs two ticks per frame); the tick itself never changes size, so tuning and stability do not depend on speed. Pause and single-step are first-class. **Built (M02.06):** each frame adds the real elapsed time to the accumulator and runs the whole ticks that fit; leftover time carries over. Elapsed time per frame is capped at `MAX_FRAME_SECONDS = 0.25` (at most 15 ticks after a stall such as a window drag or debugger pause). Pausing, resetting and loading a map discard leftover time. Only 1x so far. Rates in the design are written in water per second and converted to per-tick amounts once, by dividing by `TICKS_PER_SECOND`.
 
 ### Flow
 Brute force over the whole grid with a double buffer: read from the current `water` array, write into `next`, then swap. Never read values written during the same tick. "Downhill" always means by surface height (`land + water`), not land height alone.
@@ -145,7 +145,7 @@ An overlay drawn on the map, positioned relative to the hovered tile (not the mo
 - Pan (drag or WASD) and zoom (scroll), with clamping.
 - F1 opens the settings panel (Scene2D, mouse-operable, not persisted). Options live in `ViewSettings`; the panel swallows clicks and scrolls so the camera ignores them.
 - Min zoom: whole map fits on screen. Max zoom: about 64 px per tile. Pan clamps to the map edge.
-- `.` runs exactly one flow tick (no key repeat). `R` reloads the current map's starting state and sets the tick count to zero; the camera is not moved. `M` / `Shift+M` (next / previous map) also start the new map at tick zero. The inspector shows `Tick` and `Water total`, recomputed when a tick runs or the map loads or resets. Still to come: Space plays and pauses, then speed (1x/2x/4x...) and debug toggles. See the help overlay (`?`) for what is built.
+- `.` runs exactly one flow tick (no key repeat). `R` reloads the current map's starting state and sets the tick count to zero; the camera is not moved. `M` / `Shift+M` (next / previous map) also start the new map at tick zero. The inspector shows `Tick` and `Water total`, recomputed when a tick runs or the map loads or resets. Space toggles play and pause at 1x (60 ticks/s); the game starts paused, and loading a map or `R` leaves it paused at tick zero. `.` only steps while paused. The inspector also shows `Sim: playing` or `Sim: paused`, and `Tick` and `Water total` are recomputed after any frame that ran ticks. Still to come: speed (1x/2x/4x...) and debug toggles. See the help overlay (`?`) for what is built.
 
 ## Terraforming
 - Discrete and all-or-nothing: a chunk is removed or placed whole. The action takes time; if interrupted before completing, nothing happens. The sim applies the change only on completion.
