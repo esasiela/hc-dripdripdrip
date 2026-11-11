@@ -17,9 +17,12 @@ final class InspectorText {
     return (float) sum;
   }
 
-  /** The global lines: ticks run since the map was loaded or reset, and total water. */
-  static List<String> globalLines(int tick, float totalWater) {
-    return List.of("Tick: " + tick, String.format(Locale.ROOT, "Water total: %.2f", totalWater));
+  /** The global lines: ticks run since load or reset, total water, and play state. */
+  static List<String> globalLines(int tick, float totalWater, boolean playing) {
+    return List.of(
+        "Tick: " + tick,
+        String.format(Locale.ROOT, "Water total: %.2f", totalWater),
+        "Sim: " + (playing ? "playing" : "paused"));
   }
 
   /** Always four lines for the tile at {@code index}; "-" stands in for data that doesn't exist. */

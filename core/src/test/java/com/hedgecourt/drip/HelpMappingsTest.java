@@ -22,6 +22,7 @@ class HelpMappingsTest {
   @Test
   void listsFlowStepAndReset() {
     List<String> keys = HelpMappings.entries().stream().map(HelpMappings.Entry::keys).toList();
+    assertTrue(keys.contains("Space"));
     assertTrue(keys.contains("."));
     assertTrue(keys.contains("R"));
   }

@@ -19,8 +19,13 @@ class InspectorTextTest {
   }
 
   @Test
-  void globalLinesShowTickAndTwoDecimalTotal() {
-    assertEquals(List.of("Tick: 3", "Water total: 1.50"), InspectorText.globalLines(3, 1.5f));
+  void globalLinesShowTickTotalAndSimState() {
+    assertEquals(
+        List.of("Tick: 3", "Water total: 1.50", "Sim: paused"),
+        InspectorText.globalLines(3, 1.5f, false));
+    assertEquals(
+        List.of("Tick: 3", "Water total: 1.50", "Sim: playing"),
+        InspectorText.globalLines(3, 1.5f, true));
   }
 
   @Test
